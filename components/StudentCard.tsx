@@ -19,16 +19,17 @@ export function StudentCard({ student, service, category }: StudentCardProps) {
   )}`;
 
   return (
-    <article className="overflow-hidden rounded-lg border border-[#E5E7EB] bg-white shadow-[0_1px_2px_rgba(21,34,56,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_35px_rgba(21,34,56,0.08)]">
+    <article className="group overflow-hidden rounded-lg border border-[#E5E7EB] bg-white shadow-[0_1px_2px_rgba(21,34,56,0.04)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_45px_rgba(21,34,56,0.12)]">
       <Link href={`/students/${student.id}`} className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5B7CFA]">
-        <div className="relative h-56 bg-[#F2F4F7]">
+        <div className="relative h-60 overflow-hidden bg-[#F2F4F7]">
           <Image
             src={student.photo}
             alt={`Profile photograph of ${student.displayName}, ${student.university}`}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-            className="object-cover"
+            className="object-cover transition duration-500 group-hover:scale-[1.04]"
           />
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#152238]/32 to-transparent" />
         </div>
       </Link>
       <div className="p-5">

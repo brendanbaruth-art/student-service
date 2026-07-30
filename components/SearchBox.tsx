@@ -4,13 +4,20 @@ import { Button } from "./Button";
 type SearchBoxProps = {
   defaultValue?: string;
   compact?: boolean;
+  variant?: "default" | "hero";
 };
 
-export function SearchBox({ defaultValue = "", compact = false }: SearchBoxProps) {
+export function SearchBox({ defaultValue = "", compact = false, variant = "default" }: SearchBoxProps) {
+  const hero = variant === "hero";
+
   return (
     <form
       action="/search"
-      className={`grid w-full gap-2 rounded-lg border border-[#E5E7EB] bg-white p-2 shadow-[0_18px_45px_rgba(21,34,56,0.12)] md:grid-cols-[1fr_150px_auto] ${
+      className={`grid w-full gap-2 rounded-lg border p-2 transition md:grid-cols-[1fr_150px_auto] ${
+        hero
+          ? "border-white/45 bg-white/95 shadow-[0_24px_70px_rgba(0,0,0,0.28)] backdrop-blur"
+          : "border-[#E5E7EB] bg-white shadow-[0_18px_45px_rgba(21,34,56,0.12)]"
+      } ${
         compact ? "max-w-4xl" : "max-w-5xl"
       }`}
     >
