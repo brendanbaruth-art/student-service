@@ -3,7 +3,7 @@ import { Button } from "@/components/Button";
 import { PageShell } from "@/components/PageShell";
 import { SelectField, TextAreaField, TextInput } from "@/components/FormField";
 import { Toast } from "@/components/Toast";
-import { categories } from "@/lib/data";
+import { capabilityCatalog, categories } from "@/lib/data";
 
 export const metadata = {
   title: "Offer a service",
@@ -69,11 +69,23 @@ export default function OfferPage() {
               <TextInput id="languages" label="Languages" placeholder="French, English" />
             </div>
             <div className="mt-6 rounded-lg bg-[#F8F7F3] p-4">
-              <h3 className="font900 text-[#172033]">Listing preview</h3>
+              <h3 className="font900 text-[#172033]">Profile capability selector</h3>
               <p className="mt-2 text-sm leading-6 text-[#667085]">
-                Your preview will show the service title, category, price, availability,
-                and service area before publishing.
+                Select every job you are comfortable offering. Each selected service can have its own price.
               </p>
+              <div className="mt-4 grid max-h-72 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+                {capabilityCatalog.map((capability, index) => (
+                  <label key={capability} className="flex items-center gap-3 rounded-md border border-[#E5E7EB] bg-white px-3 py-2 text-sm font800 text-[#172033]">
+                    <input type="checkbox" className="size-4 accent-[#4FAE8A]" defaultChecked={index < 8} />
+                    <span className="min-w-0 flex-1">{capability}</span>
+                    <input
+                      aria-label={`${capability} price`}
+                      className="w-20 rounded-md border border-[#D0D5DD] px-2 py-1 text-xs"
+                      defaultValue={index % 3 === 0 ? "€25" : "€20/h"}
+                    />
+                  </label>
+                ))}
+              </div>
             </div>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
               <Button type="button" variant="secondary">Save draft</Button>

@@ -4,6 +4,7 @@ import { Clock, MapPin, Star } from "lucide-react";
 import type { Student } from "@/lib/data";
 import { getPrimaryService } from "@/lib/data";
 import { Button } from "./Button";
+import { FavoriteButton } from "./FavoriteButton";
 import { VerificationBadge } from "./VerificationBadge";
 
 type StudentCardProps = {
@@ -20,8 +21,8 @@ export function StudentCard({ student, service, category }: StudentCardProps) {
 
   return (
     <article className="group overflow-hidden rounded-lg border border-[#E5E7EB] bg-white shadow-[0_1px_2px_rgba(21,34,56,0.04)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_45px_rgba(21,34,56,0.12)]">
-      <Link href={`/students/${student.id}`} className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5B7CFA]">
-        <div className="relative h-60 overflow-hidden bg-[#F2F4F7]">
+      <div className="relative h-60 overflow-hidden bg-[#F2F4F7]">
+        <Link href={`/students/${student.id}`} className="block h-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5B7CFA]">
           <Image
             src={student.photo}
             alt={`Profile photograph of ${student.displayName}, ${student.university}`}
@@ -30,8 +31,14 @@ export function StudentCard({ student, service, category }: StudentCardProps) {
             className="object-cover transition duration-500 group-hover:scale-[1.04]"
           />
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#152238]/32 to-transparent" />
+        </Link>
+        <div className="absolute right-3 top-3">
+          <FavoriteButton studentId={student.id} label={student.displayName} />
         </div>
-      </Link>
+        <div className="absolute bottom-3 left-3 rounded-full bg-white/92 px-3 py-1 text-xs font900 text-[#152238] shadow-[0_8px_18px_rgba(21,34,56,0.16)] backdrop-blur">
+          {student.availabilityTag}
+        </div>
+      </div>
       <div className="p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -46,20 +53,20 @@ export function StudentCard({ student, service, category }: StudentCardProps) {
           </div>
         </div>
         <div className="mt-3">
-          <VerificationBadge compact />
+          {student.verified ? <VerificationBadge compact /> : <span className="rounded-full bg-[#F8F7F3] px-3 py-1 text-xs font800 text-[#667085]">New on Etudo</span>}
         </div>
         <div className="mt-4 grid gap-2 text-sm text-[#667085]">
           <p className="flex items-center gap-2">
             <MapPin size={16} aria-hidden />
-            {student.area}
+            {student.area} · {student.distance}
           </p>
           <p className="flex items-center gap-2">
             <Clock size={16} aria-hidden />
-            {student.availability}
+            {student.responseTime}
           </p>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          {student.services.slice(0, 2).map((item) => (
+          {student.services.slice(0, 3).map((item) => (
             <span key={item.name} className="rounded-full bg-[#F8F7F3] px-3 py-1 text-xs font800 text-[#475467]">
               {item.name}
             </span>
@@ -69,7 +76,9 @@ export function StudentCard({ student, service, category }: StudentCardProps) {
           <div>
             <p className="text-sm text-[#667085]">Starts at</p>
             <p className="text-base font900 text-[#152238]">{student.startingPrice}</p>
-            <p className="mt-1 text-xs font700 text-[#667085]">{student.reviews} reviews</p>
+            <p className="mt-1 text-xs font700 text-[#667085]">
+              {student.newOnEtudo ? "New on Etudo" : `${student.reviews} reviews`}
+            </p>
           </div>
           <Button href={bookingHref} className="px-4">
             View profile

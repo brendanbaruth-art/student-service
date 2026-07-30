@@ -2,10 +2,11 @@ import Link from "next/link";
 import { SlidersHorizontal } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { FilterControls } from "@/components/FilterControls";
+import { FindHelpResults } from "@/components/FindHelpResults";
 import { PageShell } from "@/components/PageShell";
+import { RecentSearches } from "@/components/RecentSearches";
 import { SearchBox } from "@/components/SearchBox";
-import { StudentCard } from "@/components/StudentCard";
-import { categories, findCategory, searchStudents } from "@/lib/data";
+import { categories, correctSearchQuery, findCategory, searchStudents } from "@/lib/data";
 
 type SearchPageProps = {
   searchParams?: Promise<{
@@ -23,6 +24,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = params?.q || "";
   const category = params?.category || "";
+  const correctedQuery = correctSearchQuery(query);
   const activeCategory = findCategory(category);
   const results = searchStudents(query, category);
   const title = query
@@ -30,6 +32,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     : activeCategory
       ? activeCategory.name
       : "Students available to help in Paris";
+  const corrected = query && correctedQuery.toLowerCase() !== query.trim().toLowerCase();
 
   return (
     <PageShell>
@@ -44,9 +47,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <p className="mt-4 max-w-2xl text-lg leading-8 text-[#667085]">
             Compare students by services, price, rating, response time, and availability.
           </p>
+          {corrected ? (
+            <p className="mt-4 inline-flex rounded-full bg-[#E8F5EF] px-3 py-2 text-sm font900 text-[#26755B]">
+              Showing results for &quot;{correctedQuery}&quot;
+            </p>
+          ) : null}
           <div className="mt-8">
             <SearchBox defaultValue={query} compact />
           </div>
+          <RecentSearches />
         </div>
       </section>
 
@@ -78,7 +87,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[280px_1fr] lg:px-8">
+      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[300px_1fr] lg:px-8">
         <div className="lg:hidden">
           <details className="rounded-lg border border-[#E5E7EB] bg-white">
             <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 text-sm font900 text-[#172033]">
@@ -106,15 +115,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             </div>
           </div>
           {results.length ? (
-            <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {results.map((student) => (
-                <StudentCard
-                  key={student.id}
-                  student={student}
-                  category={category}
-                  service={query || activeCategory?.name}
-                />
-              ))}
+            <div className="mt-6">
+              <FindHelpResults
+                students={results}
+                category={category}
+                service={correctedQuery || activeCategory?.name}
+              />
             </div>
           ) : (
             <div className="mt-6">

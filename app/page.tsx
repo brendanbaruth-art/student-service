@@ -22,10 +22,9 @@ import { PageShell } from "@/components/PageShell";
 import { SearchBox } from "@/components/SearchBox";
 import { ServiceCard } from "@/components/ServiceCard";
 import { StudentCard } from "@/components/StudentCard";
-import { popularCategories, students } from "@/lib/data";
+import { openRequests, popularCategories, students } from "@/lib/data";
 
-const heroImage =
-  "https://images.unsplash.com/photo-1528909514045-2fa4ac7a08ba?auto=format&fit=crop&w=2200&q=82";
+const heroImage = "/etudo-paris-eiffel-hero.jpg";
 
 const lifestyleImage =
   "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1400&q=82";
@@ -64,12 +63,6 @@ const helperSteps = [
 const pathCards: Array<{ title: string; steps: string[]; icon: LucideIcon }> = [
   { title: "I need help", steps: customerSteps, icon: Users },
   { title: "I want to earn", steps: helperSteps, icon: Bike },
-];
-
-const openRequests = [
-  { task: "Carry boxes to a new studio", area: "11e - Bastille", price: "Est. €44", tag: "Moving" },
-  { task: "Maths prep before exams", area: "16e - Dauphine", price: "€30/hour", tag: "Tutoring" },
-  { task: "Assemble a desk and shelves", area: "13e - Bibliothèque", price: "€25/hour", tag: "Assembly" },
 ];
 
 const earnBenefits = [
@@ -185,18 +178,18 @@ export default function Home() {
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="text-sm font900 uppercase tracking-[0.18em] text-[#5B7CFA]">
-                Available students
+                Available today
               </p>
               <h2 className="mt-3 text-3xl font900 tracking-tight text-[#152238] sm:text-4xl">
-                Reliable help from university peers.
+                Reliable help ready around Paris.
               </h2>
             </div>
             <Button href="/search" variant="ghost" className="justify-start px-0 sm:justify-center">
               Search students <ChevronRight size={17} aria-hidden />
             </Button>
           </div>
-          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {students.slice(0, 4).map((student) => (
+          <div className="mt-8 grid auto-cols-[82%] grid-flow-col gap-5 overflow-x-auto pb-2 sm:auto-cols-[46%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
+            {students.filter((student) => student.availabilityTag.includes("today") || student.availabilityTag.includes("now") || student.availabilityTag.includes("tonight")).slice(0, 4).map((student) => (
               <StudentCard key={student.id} student={student} />
             ))}
           </div>
@@ -219,28 +212,51 @@ export default function Home() {
               </p>
             </div>
             <div className="grid gap-3">
-              {openRequests.map((request) => (
+              {openRequests.slice(0, 5).map((request) => (
                 <Link
-                  key={request.task}
+                  key={request.id}
                   href="/browse"
                   className="group grid gap-4 rounded-lg border border-white/80 bg-white/82 p-4 shadow-[0_12px_28px_rgba(21,34,56,0.06)] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-[0_20px_40px_rgba(21,34,56,0.1)] sm:grid-cols-[1fr_auto]"
                 >
                   <span>
                     <span className="inline-flex rounded-full bg-[#F8F7F3] px-2.5 py-1 text-xs font900 text-[#5B7CFA]">
-                      {request.tag}
+                      {request.category}
                     </span>
-                    <span className="mt-3 block text-base font900 text-[#152238]">{request.task}</span>
+                    <span className="mt-3 block text-base font900 text-[#152238]">{request.title}</span>
                     <span className="mt-1 flex items-center gap-2 text-sm font700 text-[#667085]">
                       <MapPin size={15} aria-hidden /> {request.area}
                     </span>
                   </span>
                   <span className="flex items-center justify-between gap-4 sm:justify-end">
-                    <span className="text-base font900 text-[#152238]">{request.price}</span>
+                    <span className="text-base font900 text-[#152238]">{request.budget}</span>
                     <ArrowRight size={18} className="text-[#5B7CFA] transition group-hover:translate-x-1" aria-hidden />
                   </span>
                 </Link>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font900 uppercase tracking-[0.18em] text-[#5B7CFA]">
+                Popular near you
+              </p>
+              <h2 className="mt-3 text-3xl font900 tracking-tight text-[#152238] sm:text-4xl">
+                Students within a few Metro stops.
+              </h2>
+            </div>
+            <Button href="/browse" variant="ghost" className="justify-start px-0 sm:justify-center">
+              Explore map <ChevronRight size={17} aria-hidden />
+            </Button>
+          </div>
+          <div className="mt-8 grid auto-cols-[82%] grid-flow-col gap-5 overflow-x-auto pb-2 sm:auto-cols-[46%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
+            {students.slice(8, 12).map((student) => (
+              <StudentCard key={student.id} student={student} />
+            ))}
           </div>
         </div>
       </section>
@@ -290,6 +306,55 @@ export default function Home() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font900 uppercase tracking-[0.18em] text-[#5B7CFA]">
+                Discover skills
+              </p>
+              <h2 className="mt-3 text-3xl font900 tracking-tight text-[#152238] sm:text-4xl">
+                More than moving and tutoring.
+              </h2>
+            </div>
+            <Button href="/search?category=creative-skills" variant="ghost" className="justify-start px-0 sm:justify-center">
+              Browse creative help <ChevronRight size={17} aria-hidden />
+            </Button>
+          </div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {["Dog walking", "Presentation design", "Bike repair", "Guitar lessons", "Mandarin conversation", "Leboncoin pickup", "Makeup for events", "CV review"].map((skill) => (
+              <Link
+                key={skill}
+                href={`/search?q=${encodeURIComponent(skill)}`}
+                className="rounded-lg border border-[#E5E7EB] bg-[#F8F7F3] p-4 text-sm font900 text-[#172033] transition hover:-translate-y-0.5 hover:border-[#5B7CFA] hover:bg-white"
+              >
+                {skill}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#F8F7F3]">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-sm font900 uppercase tracking-[0.18em] text-[#5B7CFA]">
+                New on Etudo
+              </p>
+              <h2 className="mt-3 text-3xl font900 tracking-tight text-[#152238] sm:text-4xl">
+                Fresh profiles from Paris universities.
+              </h2>
+            </div>
+          </div>
+          <div className="mt-8 grid auto-cols-[82%] grid-flow-col gap-5 overflow-x-auto pb-2 sm:auto-cols-[46%] lg:grid-flow-row lg:grid-cols-4 lg:overflow-visible">
+            {students.filter((student) => student.newOnEtudo).slice(0, 4).map((student) => (
+              <StudentCard key={student.id} student={student} />
+            ))}
           </div>
         </div>
       </section>
