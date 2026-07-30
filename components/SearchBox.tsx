@@ -1,3 +1,6 @@
+import { MapPin, Search } from "lucide-react";
+import { Button } from "./Button";
+
 type SearchBoxProps = {
   defaultValue?: string;
   compact?: boolean;
@@ -7,26 +10,31 @@ export function SearchBox({ defaultValue = "", compact = false }: SearchBoxProps
   return (
     <form
       action="/search"
-      className={`flex w-full flex-col gap-3 rounded-[2rem] border border-slate-200 bg-white p-2 shadow-xl shadow-slate-950/10 sm:flex-row ${
-        compact ? "max-w-3xl" : "max-w-4xl"
+      className={`grid w-full gap-2 rounded-lg border border-[#E5E7EB] bg-white p-2 shadow-[0_18px_45px_rgba(21,34,56,0.12)] md:grid-cols-[1fr_150px_auto] ${
+        compact ? "max-w-4xl" : "max-w-5xl"
       }`}
     >
-      <label className="sr-only" htmlFor="q">
-        Search for a task
+      <label className="flex min-h-12 items-center gap-3 rounded-md px-3 text-[#667085]" htmlFor="q">
+        <Search size={18} aria-hidden />
+        <span className="sr-only">Search for help</span>
+        <input
+          id="q"
+          name="q"
+          defaultValue={defaultValue}
+          placeholder="What do you need help with?"
+          className="min-w-0 flex-1 bg-transparent text-base font600 text-[#172033] outline-none placeholder:text-[#98A2B3]"
+        />
       </label>
-      <input
-        id="q"
-        name="q"
-        defaultValue={defaultValue}
-        placeholder='Try "help moving" or "French tutoring"'
-        className="min-h-14 flex-1 rounded-full px-5 text-base font-medium text-slate-950 outline-none placeholder:text-slate-400"
-      />
-      <button
-        type="submit"
-        className="min-h-14 rounded-full bg-slate-950 px-7 text-base font-black text-white transition hover:bg-teal-700"
-      >
+      <label className="flex min-h-12 items-center gap-2 rounded-md border border-[#E5E7EB] px-3 text-sm font700 text-[#172033]" htmlFor="location">
+        <MapPin size={17} className="text-[#667085]" aria-hidden />
+        <span className="sr-only">Location</span>
+        <select id="location" name="location" defaultValue="Paris" className="w-full bg-transparent outline-none">
+          <option>Paris</option>
+        </select>
+      </label>
+      <Button type="submit" className="w-full md:w-auto">
         Search
-      </button>
+      </Button>
     </form>
   );
 }

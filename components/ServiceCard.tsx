@@ -1,28 +1,53 @@
 import Link from "next/link";
+import {
+  BookOpen,
+  Camera,
+  Cat,
+  Code2,
+  Hammer,
+  Languages,
+  PackageCheck,
+  PartyPopper,
+  RotateCcw,
+  Sparkles,
+  Truck,
+  type LucideIcon,
+} from "lucide-react";
 import type { ServiceCategory } from "@/lib/data";
 
-export function ServiceCard({ category }: { category: ServiceCategory }) {
+const icons: Record<string, LucideIcon> = {
+  "moving-help": Truck,
+  tutoring: BookOpen,
+  assembly: Hammer,
+  "tech-help": Code2,
+  "pet-sitting": Cat,
+  errands: PackageCheck,
+  photography: Camera,
+  "language-help": Languages,
+  "event-help": PartyPopper,
+  cleaning: Sparkles,
+  "furniture-transport": RotateCcw,
+};
+
+export function ServiceCard({ category, compact = false }: { category: ServiceCategory; compact?: boolean }) {
+  const Icon = icons[category.slug] || PackageCheck;
+
   return (
     <Link
       href={`/search?category=${category.slug}`}
-      className="group rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-teal-300 hover:shadow-xl hover:shadow-slate-950/10"
+      className={`group block rounded-lg border border-[#E5E7EB] bg-white transition hover:-translate-y-0.5 hover:border-[#5B7CFA] hover:shadow-[0_18px_35px_rgba(21,34,56,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5B7CFA] ${
+        compact ? "p-4" : "p-5"
+      }`}
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-lg font-black text-slate-950">{category.name}</p>
-          <p className="mt-2 text-sm leading-6 text-slate-600">{category.description}</p>
-        </div>
-        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-teal-50 text-sm font-black text-teal-700 transition group-hover:bg-teal-600 group-hover:text-white">
-          +
+      <div className="flex items-start gap-4">
+        <span className="grid size-11 shrink-0 place-items-center rounded-md bg-[#EEF2FF] text-[#5B7CFA] transition group-hover:bg-[#5B7CFA] group-hover:text-white">
+          <Icon size={20} aria-hidden />
         </span>
-      </div>
-      <p className="mt-4 text-sm font-black text-slate-950">{category.avgPrice}</p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {category.tags.map((tag) => (
-          <span key={tag} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
-            {tag}
-          </span>
-        ))}
+        <div className="min-w-0">
+          <h3 className="text-base font900 text-[#172033]">{category.name}</h3>
+          <p className="mt-2 text-sm leading-6 text-[#667085]">{category.description}</p>
+          <p className="mt-4 text-sm font800 text-[#152238]">{category.startingPrice}</p>
+        </div>
       </div>
     </Link>
   );

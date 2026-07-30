@@ -1,5 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
+import { CheckCircle2, Clock, MapPin, Star } from "lucide-react";
+import { BookingSummary } from "@/components/BookingSummary";
+import { Button } from "@/components/Button";
 import { PageShell } from "@/components/PageShell";
+import { SelectField, TextAreaField, TextInput } from "@/components/FormField";
 import { findStudent, students } from "@/lib/data";
 
 type BookingPageProps = {
@@ -10,99 +15,141 @@ type BookingPageProps = {
 };
 
 export const metadata = {
-  title: "Booking Flow | CampusLift",
-  description: "Preview booking a student helper on CampusLift.",
+  title: "Request a booking",
+  description: "Request student help through Etudo.",
 };
+
+const steps = [
+  "Select service",
+  "Choose date and time",
+  "Enter task details",
+  "Add location",
+  "Review request",
+  "Confirmation",
+];
 
 export default async function BookingPage({ searchParams }: BookingPageProps) {
   const params = await searchParams;
   const student = findStudent(params?.student || "") || students[0];
-  const service = params?.service || student.services[0];
+  const service = params?.service || student.services[0].name;
 
   return (
     <PageShell>
-      <section className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_390px] lg:px-8">
+      <section className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_390px] lg:px-8">
         <div>
-          <p className="text-sm font-black uppercase tracking-[0.18em] text-teal-700">
-            Booking flow
+          <p className="text-sm font900 uppercase tracking-[0.18em] text-[#5B7CFA]">
+            Booking request
           </p>
-          <h1 className="mt-3 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl">
-            Request {service.toLowerCase()} from {student.name}.
+          <h1 className="mt-3 text-4xl font900 tracking-tight text-[#152238] sm:text-5xl">
+            Request {service.toLowerCase()} from {student.displayName}.
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
-            This front-end flow collects task details and confirms the request. Payments,
-            calendar sync, messaging, and deposits are intentionally left out for the MVP.
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-[#667085]">
+            Share the details of your task. You will review the estimated total before sending the request.
           </p>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {["Task details", "Time and place", "Review request"].map((step, index) => (
-              <div key={step} className={`rounded-lg p-4 ${index === 0 ? "bg-teal-600 text-white" : "bg-white text-slate-700"}`}>
-                <p className="text-sm font-black">Step {index + 1}</p>
-                <p className="mt-2 font-black">{step}</p>
-              </div>
+          <ol className="mt-8 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {steps.map((step, index) => (
+              <li key={step} className={`rounded-lg border p-4 ${index <= 1 ? "border-[#5B7CFA] bg-white" : "border-[#E5E7EB] bg-white/70"}`}>
+                <p className="text-xs font900 uppercase tracking-[0.14em] text-[#667085]">Step {index + 1}</p>
+                <p className="mt-2 text-sm font900 text-[#172033]">{step}</p>
+              </li>
             ))}
-          </div>
+          </ol>
 
-          <form className="mt-8 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <label className="grid gap-2 text-sm font-bold text-slate-700">
-                Service
-                <input defaultValue={service} className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-teal-600" />
-              </label>
-              <label className="grid gap-2 text-sm font-bold text-slate-700">
-                Estimated duration
-                <select className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-teal-600">
-                  <option>1 hour</option>
-                  <option>2 hours</option>
-                  <option>Half day</option>
-                  <option>Not sure yet</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-bold text-slate-700">
-                Date
-                <input type="date" className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-teal-600" />
-              </label>
-              <label className="grid gap-2 text-sm font-bold text-slate-700">
-                Paris location
-                <input className="rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-teal-600" placeholder="75005, Latin Quarter" />
-              </label>
-              <label className="grid gap-2 text-sm font-bold text-slate-700 sm:col-span-2">
-                Task notes
-                <textarea className="min-h-32 rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-teal-600" placeholder="Example: moving 8 boxes and a desk from a 3rd floor apartment, no lift." />
-              </label>
+          <form className="mt-8 rounded-lg border border-[#E5E7EB] bg-white p-5 shadow-[0_18px_35px_rgba(21,34,56,0.06)] sm:p-6">
+            <div className="grid gap-8">
+              <section>
+                <h2 className="text-xl font900 text-[#152238]">1. Select service</h2>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <SelectField id="service" label="Service" defaultValue={service}>
+                    {student.services.map((item) => (
+                      <option key={item.name}>{item.name}</option>
+                    ))}
+                  </SelectField>
+                  <SelectField id="duration" label="Estimated duration" defaultValue="2 hours">
+                    <option>1 hour</option>
+                    <option>2 hours</option>
+                    <option>3 hours</option>
+                    <option>Half day</option>
+                  </SelectField>
+                </div>
+              </section>
+
+              <section>
+                <h2 className="text-xl font900 text-[#152238]">2. Choose date and time</h2>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <TextInput id="date" label="Date" type="date" required />
+                  <TextInput id="time" label="Time" type="time" required />
+                </div>
+              </section>
+
+              <section>
+                <h2 className="text-xl font900 text-[#152238]">3. Task details</h2>
+                <div className="mt-4 grid gap-4">
+                  <TextAreaField id="help-needed" label="What help is needed?" placeholder="Describe the task clearly." required />
+                  <TextInput id="items" label="Items involved" placeholder="Boxes, desk, pet food, laptop, documents" />
+                  <TextAreaField id="notes" label="Additional notes" placeholder="Anything the student should know before accepting." />
+                </div>
+              </section>
+
+              <section>
+                <h2 className="text-xl font900 text-[#152238]">4. Location</h2>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <TextInput id="address" label="Address or approximate location" placeholder="Street or district" required />
+                  <TextInput id="postcode" label="District or postcode" placeholder="75005" />
+                  <TextInput id="access" label="Access information" placeholder="Floor, lift, entry code, meeting point" />
+                </div>
+              </section>
+
+              <section className="rounded-lg bg-[#F8F7F3] p-5">
+                <h2 className="text-xl font900 text-[#152238]">5. Review request</h2>
+                <p className="mt-2 text-sm leading-6 text-[#667085]">
+                  Confirm the service, time, location, and estimated total before sending your request.
+                </p>
+                <div className="mt-4 grid gap-3 text-sm">
+                  <p className="flex items-center gap-2 font800 text-[#172033]">
+                    <CheckCircle2 size={17} className="text-[#4FAE8A]" aria-hidden />
+                    Confirmation appears after the request is sent.
+                  </p>
+                </div>
+              </section>
             </div>
-            <button type="button" className="mt-6 w-full rounded-full bg-teal-600 px-5 py-3 text-sm font-black text-white transition hover:bg-teal-700">
-              Send booking request
-            </button>
+            <Button type="button" className="mt-6 w-full">Send booking request</Button>
           </form>
         </div>
 
-        <aside className="h-fit rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex gap-4">
-            <img src={student.photo} alt={`${student.name} profile photo`} className="size-20 rounded-lg object-cover" />
-            <div>
-              <p className="text-xl font-black text-slate-950">{student.name}</p>
-              <p className="mt-1 text-sm font-semibold text-slate-500">{student.university}</p>
-              <p className="mt-2 text-sm font-black text-teal-700">{student.price}</p>
+        <aside className="h-fit lg:sticky lg:top-24">
+          <div className="rounded-lg border border-[#E5E7EB] bg-white p-5 shadow-[0_18px_35px_rgba(21,34,56,0.06)]">
+            <div className="flex gap-4">
+              <div className="relative size-20 overflow-hidden rounded-lg bg-[#F2F4F7]">
+                <Image src={student.photo} alt={`Profile photograph of ${student.displayName}`} fill sizes="80px" className="object-cover" />
+              </div>
+              <div>
+                <p className="text-xl font900 text-[#152238]">{student.displayName}</p>
+                <p className="mt-1 text-sm font700 text-[#667085]">{student.university}</p>
+                <p className="mt-2 flex items-center gap-1 text-sm font800 text-[#172033]">
+                  <Star size={15} className="fill-[#F5B544] text-[#F5B544]" aria-hidden />
+                  {student.rating.toFixed(1)} · {student.reviews} reviews
+                </p>
+              </div>
             </div>
+            <div className="mt-6 grid gap-3 text-sm">
+              <div className="flex items-center gap-2 text-[#667085]">
+                <MapPin size={16} aria-hidden />
+                {student.area}
+              </div>
+              <div className="flex items-center gap-2 text-[#667085]">
+                <Clock size={16} aria-hidden />
+                {student.responseTime}
+              </div>
+            </div>
+            <Link href={`/students/${student.id}`} className="mt-5 inline-flex text-sm font900 text-[#5B7CFA] hover:text-[#152238]">
+              View profile
+            </Link>
           </div>
-          <div className="mt-6 grid gap-3 text-sm">
-            <div className="flex justify-between gap-4 border-t border-slate-100 pt-3">
-              <span className="font-bold text-slate-500">Rating</span>
-              <span className="font-black text-slate-950">{student.rating.toFixed(1)} from {student.reviews}</span>
-            </div>
-            <div className="flex justify-between gap-4 border-t border-slate-100 pt-3">
-              <span className="font-bold text-slate-500">Availability</span>
-              <span className="max-w-44 text-right font-black text-slate-950">{student.availability}</span>
-            </div>
-            <div className="flex justify-between gap-4 border-t border-slate-100 pt-3">
-              <span className="font-bold text-slate-500">Status</span>
-              <span className="font-black text-teal-700">Verified</span>
-            </div>
+          <div className="mt-5">
+            <BookingSummary student={student} duration={2} />
           </div>
-          <Link href={`/students/${student.id}`} className="mt-6 block rounded-full border border-slate-300 px-5 py-3 text-center text-sm font-black text-slate-950 transition hover:border-slate-950">
-            View profile
-          </Link>
         </aside>
       </section>
     </PageShell>

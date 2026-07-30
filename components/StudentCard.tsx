@@ -1,62 +1,78 @@
+import Image from "next/image";
 import Link from "next/link";
+import { Clock, MapPin, Star } from "lucide-react";
 import type { Student } from "@/lib/data";
+import { getPrimaryService } from "@/lib/data";
+import { Button } from "./Button";
+import { VerificationBadge } from "./VerificationBadge";
 
 type StudentCardProps = {
   student: Student;
   service?: string;
+  category?: string;
 };
 
-export function StudentCard({ student, service }: StudentCardProps) {
+export function StudentCard({ student, service, category }: StudentCardProps) {
+  const primaryService = getPrimaryService(student, category, service);
   const bookingHref = `/booking?student=${student.id}&service=${encodeURIComponent(
-    service || student.services[0],
+    primaryService.name,
   )}`;
 
   return (
-    <article className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-950/10">
-      <Link href={`/students/${student.id}`} className="block">
-        <div className="relative h-56 bg-slate-100">
-          <img
+    <article className="overflow-hidden rounded-lg border border-[#E5E7EB] bg-white shadow-[0_1px_2px_rgba(21,34,56,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_35px_rgba(21,34,56,0.08)]">
+      <Link href={`/students/${student.id}`} className="block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5B7CFA]">
+        <div className="relative h-56 bg-[#F2F4F7]">
+          <Image
             src={student.photo}
-            alt={`${student.name} profile photo`}
-            className="h-full w-full object-cover"
+            alt={`Profile photograph of ${student.displayName}, ${student.university}`}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover"
           />
-          <div className="absolute left-4 top-4 rounded-full bg-white/95 px-3 py-1 text-xs font-black text-teal-700 shadow-sm">
-            {student.verified ? "Verified student" : "Pending verification"}
-          </div>
         </div>
       </Link>
       <div className="p-5">
         <div className="flex items-start justify-between gap-4">
-          <div>
-            <Link href={`/students/${student.id}`} className="text-xl font-black text-slate-950">
-              {student.name}
+          <div className="min-w-0">
+            <Link href={`/students/${student.id}`} className="text-xl font900 text-[#172033] hover:text-[#5B7CFA]">
+              {student.displayName}
             </Link>
-            <p className="mt-1 text-sm font-semibold text-slate-500">{student.university}</p>
+            <p className="mt-1 truncate text-sm font700 text-[#667085]">{student.university}</p>
           </div>
-          <div className="text-right">
-            <p className="font-black text-slate-950">{student.rating.toFixed(1)}</p>
-            <p className="text-xs font-semibold text-slate-500">{student.reviews} reviews</p>
+          <div className="flex shrink-0 items-center gap-1 text-sm font800 text-[#172033]" aria-label={`${student.rating.toFixed(1)} rating from ${student.reviews} reviews`}>
+            <Star size={16} className="fill-[#F5B544] text-[#F5B544]" aria-hidden />
+            {student.rating.toFixed(1)}
           </div>
         </div>
-        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{student.bio}</p>
+        <div className="mt-3">
+          <VerificationBadge compact />
+        </div>
+        <div className="mt-4 grid gap-2 text-sm text-[#667085]">
+          <p className="flex items-center gap-2">
+            <MapPin size={16} aria-hidden />
+            {student.area}
+          </p>
+          <p className="flex items-center gap-2">
+            <Clock size={16} aria-hidden />
+            {student.availability}
+          </p>
+        </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          {student.skills.slice(0, 3).map((skill) => (
-            <span key={skill} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
-              {skill}
+          {student.services.slice(0, 2).map((item) => (
+            <span key={item.name} className="rounded-full bg-[#F8F7F3] px-3 py-1 text-xs font800 text-[#475467]">
+              {item.name}
             </span>
           ))}
         </div>
-        <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+        <div className="mt-5 flex items-center justify-between gap-3 border-t border-[#E5E7EB] pt-4">
           <div>
-            <p className="text-sm font-black text-slate-950">{student.price}</p>
-            <p className="text-xs font-semibold text-slate-500">{student.responseTime}</p>
+            <p className="text-sm text-[#667085]">Starts at</p>
+            <p className="text-base font900 text-[#152238]">{student.startingPrice}</p>
+            <p className="mt-1 text-xs font700 text-[#667085]">{student.reviews} reviews</p>
           </div>
-          <Link
-            href={bookingHref}
-            className="rounded-full bg-teal-600 px-4 py-2 text-sm font-black text-white transition hover:bg-teal-700"
-          >
-            Book
-          </Link>
+          <Button href={bookingHref} className="px-4">
+            View profile
+          </Button>
         </div>
       </div>
     </article>

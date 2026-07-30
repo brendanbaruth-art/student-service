@@ -1,7 +1,12 @@
-import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import { CalendarDays, Clock, Languages, MapPin, MessageCircle, Star } from "lucide-react";
+import { BookingSummary } from "@/components/BookingSummary";
+import { Button } from "@/components/Button";
 import { PageShell } from "@/components/PageShell";
+import { SelectField, TextInput } from "@/components/FormField";
 import { StudentCard } from "@/components/StudentCard";
+import { VerificationBadge } from "@/components/VerificationBadge";
 import { findStudent, students } from "@/lib/data";
 
 type StudentProfileProps = {
@@ -17,8 +22,8 @@ export async function generateMetadata({ params }: StudentProfileProps) {
   const student = findStudent(id);
 
   return {
-    title: student ? `${student.name} | CampusLift` : "Student profile | CampusLift",
-    description: student?.bio || "Student helper profile on CampusLift.",
+    title: student ? `${student.displayName} profile` : "Student profile",
+    description: student?.bio || "View a student helper profile on Etudo.",
   };
 }
 
@@ -31,100 +36,182 @@ export default async function StudentProfilePage({ params }: StudentProfileProps
   }
 
   const similarStudents = students
-    .filter((item) => item.id !== student.id && item.categories.some((category) => student.categories.includes(category)))
+    .filter(
+      (item) =>
+        item.id !== student.id &&
+        item.categories.some((category) => student.categories.includes(category)),
+    )
     .slice(0, 3);
 
   return (
     <PageShell>
       <section className="bg-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
-          <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100">
-            <img src={student.photo} alt={`${student.name} profile photo`} className="h-full min-h-[440px] w-full object-cover" />
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[360px_1fr] lg:px-8">
+          <div className="relative h-[420px] overflow-hidden rounded-lg bg-[#F2F4F7]">
+            <Image
+              src={student.photo}
+              alt={`Profile photograph of ${student.displayName}, ${student.university}`}
+              fill
+              priority
+              sizes="(min-width: 1024px) 360px, 100vw"
+              className="object-cover"
+            />
           </div>
           <div className="self-center">
-            <div className="flex flex-wrap gap-2">
-              <span className="rounded-full bg-teal-50 px-3 py-1 text-xs font-black text-teal-700">
-                Verified student
+            <VerificationBadge />
+            <h1 className="mt-5 text-5xl font900 tracking-tight text-[#152238]">
+              {student.displayName}
+            </h1>
+            <p className="mt-3 text-lg font800 text-[#667085]">{student.university}</p>
+            <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm font700 text-[#667085]">
+              <span className="flex items-center gap-2">
+                <MapPin size={17} aria-hidden />
+                {student.area}
               </span>
-              <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-black text-rose-700">
-                {student.neighborhood}
+              <span className="flex items-center gap-2">
+                <Star size={17} className="fill-[#F5B544] text-[#F5B544]" aria-hidden />
+                {student.rating.toFixed(1)} · {student.reviews} reviews
+              </span>
+              <span className="flex items-center gap-2">
+                <MessageCircle size={17} aria-hidden />
+                {student.responseTime}
+              </span>
+              <span className="flex items-center gap-2">
+                <Languages size={17} aria-hidden />
+                {student.languages.join(", ")}
               </span>
             </div>
-            <h1 className="mt-5 text-5xl font-black tracking-tight text-slate-950">{student.name}</h1>
-            <p className="mt-3 text-lg font-bold text-slate-500">{student.university}</p>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">{student.bio}</p>
-            <div className="mt-7 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-lg bg-slate-100 p-4">
-                <p className="text-2xl font-black text-slate-950">{student.rating.toFixed(1)}</p>
-                <p className="text-sm font-bold text-slate-500">{student.reviews} reviews</p>
-              </div>
-              <div className="rounded-lg bg-slate-100 p-4">
-                <p className="text-2xl font-black text-slate-950">{student.price}</p>
-                <p className="text-sm font-bold text-slate-500">starting price</p>
-              </div>
-              <div className="rounded-lg bg-slate-100 p-4">
-                <p className="text-2xl font-black text-slate-950">Fast</p>
-                <p className="text-sm font-bold text-slate-500">{student.responseTime}</p>
-              </div>
-            </div>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-[#667085]">{student.bio}</p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href={`/booking?student=${student.id}&service=${encodeURIComponent(student.services[0])}`}
-                className="rounded-full bg-teal-600 px-6 py-3 text-center text-sm font-black text-white transition hover:bg-teal-700"
-              >
+              <Button href={`/booking?student=${student.id}&service=${encodeURIComponent(student.services[0].name)}`}>
                 Request booking
-              </Link>
-              <Link
-                href="/search?q=help+moving"
-                className="rounded-full border border-slate-300 px-6 py-3 text-center text-sm font-black text-slate-950 transition hover:border-slate-950"
-              >
+              </Button>
+              <Button href="/search" variant="secondary">
                 Back to results
-              </Link>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-[1fr_360px] lg:px-8">
-        <div className="rounded-lg border border-slate-200 bg-white p-6">
-          <h2 className="text-2xl font-black text-slate-950">Services offered</h2>
-          <div className="mt-5 grid gap-3">
-            {student.services.map((service) => (
-              <div key={service} className="flex items-center justify-between gap-4 rounded-lg bg-slate-50 p-4">
-                <div>
-                  <p className="font-black text-slate-950">{service}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-500">{student.availability}</p>
+      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_380px] lg:px-8">
+        <div className="grid gap-8">
+          <section className="rounded-lg border border-[#E5E7EB] bg-white p-6">
+            <h2 className="text-2xl font900 text-[#152238]">About</h2>
+            <p className="mt-4 leading-7 text-[#667085]">{student.bio}</p>
+          </section>
+
+          <section className="rounded-lg border border-[#E5E7EB] bg-white p-6">
+            <h2 className="text-2xl font900 text-[#152238]">Services</h2>
+            <div className="mt-5 grid gap-4">
+              {student.services.map((service) => (
+                <div key={service.name} className="rounded-lg border border-[#E5E7EB] p-4">
+                  <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
+                    <div>
+                      <h3 className="text-lg font900 text-[#172033]">{service.name}</h3>
+                      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#667085]">
+                        {service.description}
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs font800 text-[#667085]">
+                        <span className="rounded-full bg-[#F8F7F3] px-3 py-1">{service.availability}</span>
+                        <span className="rounded-full bg-[#F8F7F3] px-3 py-1">
+                          {service.pricingType === "hourly" ? "Hourly" : "Fixed price"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="shrink-0 md:text-right">
+                      <p className="text-lg font900 text-[#152238]">{service.price}</p>
+                      <Button href={`/booking?student=${student.id}&service=${encodeURIComponent(service.name)}`} variant="secondary" className="mt-3">
+                        Select
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <p className="shrink-0 text-sm font-black text-teal-700">{student.price}</p>
+              ))}
+            </div>
+          </section>
+
+          <section className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-lg border border-[#E5E7EB] bg-white p-6">
+              <h2 className="flex items-center gap-2 text-2xl font900 text-[#152238]">
+                <CalendarDays size={22} aria-hidden />
+                Availability
+              </h2>
+              <p className="mt-4 leading-7 text-[#667085]">{student.availability}</p>
+              <div className="mt-5 grid grid-cols-3 gap-2 text-center text-xs font800 text-[#667085]">
+                {["Mon", "Wed", "Sat"].map((day) => (
+                  <span key={day} className="rounded-md bg-[#F8F7F3] px-2 py-3">{day}</span>
+                ))}
               </div>
-            ))}
-          </div>
-          <h2 className="mt-8 text-2xl font-black text-slate-950">Skills and languages</h2>
-          <div className="mt-5 flex flex-wrap gap-2">
-            {[...student.skills, ...student.languages].map((item) => (
-              <span key={item} className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700">
-                {item}
-              </span>
-            ))}
-          </div>
+            </div>
+            <div className="rounded-lg border border-[#E5E7EB] bg-white p-6">
+              <h2 className="text-2xl font900 text-[#152238]">Skills and languages</h2>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {[...student.skills, ...student.languages].map((item) => (
+                  <span key={item} className="rounded-full bg-[#F8F7F3] px-3 py-1 text-sm font800 text-[#475467]">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-[#E5E7EB] bg-white p-6">
+            <h2 className="text-2xl font900 text-[#152238]">Reviews</h2>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              {student.reviewSnippets.map((review) => (
+                <article key={review.author} className="rounded-lg bg-[#F8F7F3] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font900 text-[#172033]">{review.author}</p>
+                    <span className="flex items-center gap-1 text-sm font800 text-[#172033]">
+                      <Star size={15} className="fill-[#F5B544] text-[#F5B544]" aria-hidden />
+                      {review.rating}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-6 text-[#667085]">{review.text}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-[#E5E7EB] bg-white p-6">
+            <h2 className="text-2xl font900 text-[#152238]">Safety and verification</h2>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {["University email checked", "Student ID review", "Clear booking details", "Support and reporting"].map((item) => (
+                <div key={item} className="flex items-center gap-3 rounded-md bg-[#F8F7F3] p-3 text-sm font800 text-[#172033]">
+                  <Clock size={16} className="text-[#4FAE8A]" aria-hidden />
+                  {item}
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
 
-        <aside className="h-fit rounded-lg border border-slate-200 bg-white p-6">
-          <h2 className="text-2xl font-black text-slate-950">Availability</h2>
-          <p className="mt-3 leading-7 text-slate-600">{student.availability}</p>
-          <div className="mt-6 rounded-lg bg-teal-50 p-4">
-            <p className="font-black text-teal-900">Verification preview</p>
-            <p className="mt-2 text-sm leading-6 text-teal-900/80">
-              This mock profile shows verified status. The production app would check student
-              email, school, and ID review before bookings.
-            </p>
+        <aside className="hidden h-fit rounded-lg border border-[#E5E7EB] bg-white p-5 shadow-[0_18px_35px_rgba(21,34,56,0.08)] lg:sticky lg:top-24 lg:block">
+          <p className="text-sm text-[#667085]">Starting at</p>
+          <p className="mt-1 text-3xl font900 text-[#152238]">{student.startingPrice}</p>
+          <div className="mt-5 grid gap-4">
+            <SelectField id="service" label="Service" defaultValue={student.services[0].name}>
+              {student.services.map((service) => (
+                <option key={service.name}>{service.name}</option>
+              ))}
+            </SelectField>
+            <TextInput id="date" label="Date" type="date" />
+            <TextInput id="time" label="Time" type="time" />
+            <TextInput id="district" label="District or postcode" placeholder="75005" />
+            <Button href={`/booking?student=${student.id}&service=${encodeURIComponent(student.services[0].name)}`} className="w-full">
+              Continue
+            </Button>
+          </div>
+          <div className="mt-5">
+            <BookingSummary student={student} />
           </div>
         </aside>
       </section>
 
-      <section className="bg-white">
+      <section className="bg-white pb-24 lg:pb-0">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-black tracking-tight text-slate-950">Similar students</h2>
+          <h2 className="text-3xl font900 tracking-tight text-[#152238]">Similar students</h2>
           <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {similarStudents.map((item) => (
               <StudentCard key={item.id} student={item} />
@@ -132,6 +219,12 @@ export default async function StudentProfilePage({ params }: StudentProfileProps
           </div>
         </div>
       </section>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E5E7EB] bg-white p-3 shadow-[0_-12px_30px_rgba(21,34,56,0.12)] lg:hidden">
+        <Button href={`/booking?student=${student.id}&service=${encodeURIComponent(student.services[0].name)}`} className="w-full">
+          Book {student.displayName} from {student.startingPrice}
+        </Button>
+      </div>
     </PageShell>
   );
 }
