@@ -73,6 +73,7 @@ export function InteractiveParisMap({
   const [locationNote, setLocationNote] = useState("");
   const [expanded, setExpanded] = useState(false);
   const [mapError, setMapError] = useState("");
+  const [mapReady, setMapReady] = useState(false);
 
   const counts = useMemo(() => countStudentsByArrondissement(students), [students]);
   const visibleStudents = useMemo(
@@ -311,6 +312,7 @@ export function InteractiveParisMap({
 
           fitToParis();
           scheduleResize();
+          setMapReady(true);
         });
       } catch (error) {
         if (process.env.NODE_ENV !== "production") {
@@ -365,7 +367,7 @@ export function InteractiveParisMap({
   useEffect(() => {
     const maplibregl = mapLibRef.current;
     const map = mapRef.current;
-    if (!maplibregl || !map) {
+    if (!mapReady || !maplibregl || !map) {
       return;
     }
 
@@ -439,7 +441,7 @@ export function InteractiveParisMap({
         markersRef.current.push(marker);
       });
     });
-  }, [updateSelectedAreas, visibleStudents]);
+  }, [mapReady, updateSelectedAreas, visibleStudents]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -487,11 +489,17 @@ export function InteractiveParisMap({
       <div
         className={
           expanded
-            ? "grid min-h-0 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]"
+            ? "grid h-full min-h-0 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]"
             : "grid gap-5 lg:contents"
         }
       >
-        <div className="overflow-hidden rounded-[var(--radius-medium)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-medium)]">
+        <div
+          className={
+            expanded
+              ? "h-full min-h-0 overflow-hidden rounded-[var(--radius-medium)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-medium)]"
+              : "overflow-hidden rounded-[var(--radius-medium)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-medium)]"
+          }
+        >
           {!expanded ? (
             <div className="border-b border-[var(--color-border)] p-4">
               <MapToolbar
