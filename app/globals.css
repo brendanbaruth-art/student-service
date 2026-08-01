@@ -96,6 +96,38 @@ button {
   backdrop-filter: blur(18px);
 }
 
+.etudo-map-frame {
+  position: relative;
+  height: calc(100dvh - 64px);
+  min-height: 560px;
+  background: #eff3f8;
+}
+
+.etudo-map-frame-full {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+  background: #eff3f8;
+}
+
+.maplibregl-map,
+.maplibregl-popup,
+.maplibregl-ctrl {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, "Helvetica Neue",
+    Arial, sans-serif;
+}
+
+.maplibregl-canvas {
+  outline: none;
+}
+
+.maplibregl-ctrl-group {
+  border-radius: 12px;
+  box-shadow: 0 12px 28px rgba(21, 34, 56, 0.16);
+  overflow: hidden;
+}
+
 .etudo-focus {
   outline: 2px solid var(--color-brand);
   outline-offset: 4px;
@@ -122,6 +154,13 @@ textarea {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (min-width: 1024px) {
+  .etudo-map-frame {
+    height: min(760px, calc(100dvh - 72px));
+    min-height: 680px;
   }
 }
 
