@@ -12,6 +12,8 @@ type SearchPageProps = {
   searchParams?: Promise<{
     q?: string;
     category?: string;
+    view?: string;
+    areas?: string;
   }>;
 };
 
@@ -24,6 +26,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = params?.q || "";
   const category = params?.category || "";
+  const initialView = params?.view === "map" ? "map" : "list";
+  const initialAreas = parseAreas(params?.areas);
   const correctedQuery = correctSearchQuery(query);
   const activeCategory = findCategory(category);
   const results = searchStudents(query, category);
@@ -38,13 +42,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     <PageShell>
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <p className="text-sm font900 uppercase tracking-[0.18em] text-[#5B7CFA]">
+          <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">
             Find help
           </p>
-          <h1 className="mt-3 text-4xl font900 tracking-tight text-[#152238] sm:text-5xl">
+          <h1 className="mt-3 text-page-heading font900 text-[var(--color-brand-dark)]">
             {title}
           </h1>
-          <p className="mt-4 max-w-2xl text-lg leading-8 text-[#667085]">
+          <p className="mt-4 max-w-2xl text-lg leading-8 text-[var(--color-text-secondary)]">
             Compare students by services, price, rating, response time, and availability.
           </p>
           {corrected ? (
@@ -59,14 +63,14 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         </div>
       </section>
 
-      <section className="border-y border-[#E5E7EB] bg-[#F8F7F3]">
+      <section className="border-y border-[var(--color-border)] bg-[var(--color-background)]">
         <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-5 sm:px-6 lg:px-8">
           <Link
             href="/search"
             className={`shrink-0 rounded-full border px-4 py-2 text-sm font800 ${
               !category
-                ? "border-[#5B7CFA] bg-[#5B7CFA] text-white"
-                : "border-[#E5E7EB] bg-white text-[#667085]"
+                ? "border-[var(--color-brand)] bg-[var(--color-brand)] text-white"
+                : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)]"
             }`}
           >
             All
@@ -77,8 +81,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
               href={`/search?category=${item.slug}`}
               className={`shrink-0 rounded-full border px-4 py-2 text-sm font800 transition ${
                 item.slug === category
-                  ? "border-[#5B7CFA] bg-[#5B7CFA] text-white"
-                  : "border-[#E5E7EB] bg-white text-[#667085] hover:border-[#5B7CFA] hover:text-[#172033]"
+                  ? "border-[var(--color-brand)] bg-[var(--color-brand)] text-white"
+                  : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:border-[var(--color-brand)] hover:text-[var(--color-text)]"
               }`}
             >
               {item.name}
@@ -89,12 +93,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
       <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[300px_1fr] lg:px-8">
         <div className="lg:hidden">
-          <details className="rounded-lg border border-[#E5E7EB] bg-white">
-            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 text-sm font900 text-[#172033]">
+          <details className="rounded-[var(--radius-small)] border border-[var(--color-border)] bg-white">
+            <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between px-4 text-sm font900 text-[var(--color-text)]">
               Filters and sort
               <SlidersHorizontal size={18} aria-hidden />
             </summary>
-            <div className="border-t border-[#E5E7EB] p-4">
+            <div className="border-t border-[var(--color-border)] p-4">
               <FilterControls category={category} />
             </div>
           </details>
@@ -106,11 +110,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <div>
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
-              <h2 className="text-2xl font900 text-[#152238]">
+              <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">
                 {results.length} {results.length === 1 ? "student" : "students"} found
               </h2>
-              <p className="mt-1 text-sm font700 text-[#667085]">
-                Sorted by Recommended · Paris
+              <p className="mt-1 text-sm font700 text-[var(--color-text-secondary)]">
+                Sorted by Recommended <span aria-hidden>&middot;</span> Paris
               </p>
             </div>
           </div>
@@ -120,6 +124,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
                 students={results}
                 category={category}
                 service={correctedQuery || activeCategory?.name}
+                initialView={initialView}
+                initialAreas={initialAreas}
               />
             </div>
           ) : (
@@ -131,4 +137,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       </section>
     </PageShell>
   );
+}
+
+function parseAreas(value?: string) {
+  return (value || "")
+    .split(",")
+    .map((item) => Number(item))
+    .filter((item) => Number.isInteger(item) && item >= 1 && item <= 20);
 }

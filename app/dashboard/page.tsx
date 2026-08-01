@@ -8,7 +8,7 @@ import { bookingHistory, conversations, openRequests, students } from "@/lib/dat
 
 export const metadata = {
   title: "Dashboard",
-  description: "Etudo sample dashboard.",
+  description: "Manage bookings, messages, saved students, and service activity on Etudo.",
 };
 
 export default function DashboardPage() {
@@ -17,13 +17,13 @@ export default function DashboardPage() {
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <p className="text-sm font900 uppercase tracking-[0.18em] text-[#5B7CFA]">
-            Demo dashboard
+            Dashboard
           </p>
           <h1 className="mt-3 text-4xl font900 tracking-tight text-[#152238] sm:text-5xl">
             Welcome back, Alex.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[#667085]">
-            A sample signed-in view showing bookings, saved students, messages, and helper activity.
+            Manage your bookings, saved students, messages, and helper activity in one place.
           </p>
         </div>
       </section>
@@ -34,7 +34,7 @@ export default function DashboardPage() {
             {[
               [CalendarCheck, "Upcoming booking", "Camille M. tomorrow at 18:00"],
               [Users, "Open request", "3 students interested in moving help"],
-              [Banknote, "Helper earnings", "€142 sample month"],
+              [Banknote, "Helper earnings", "€142 this month"],
             ].map(([Icon, title, text]) => (
               <div key={title as string} className="rounded-lg border border-[#E5E7EB] bg-white p-5 shadow-[0_1px_2px_rgba(21,34,56,0.04)]">
                 <Icon size={22} className="text-[#5B7CFA]" aria-hidden />

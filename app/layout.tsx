@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
-
-const manrope = Manrope({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-manrope",
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://etudo.com"),
@@ -43,9 +37,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${manrope.variable} antialiased`}
-      >
+      <body className="antialiased">
         {children}
       </body>
     </html>

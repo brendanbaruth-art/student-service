@@ -1,21 +1,53 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { List, Map } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Student } from "@/lib/data";
-import { ParisMapPreview } from "./ParisMapPreview";
 import { StudentCard } from "./StudentCard";
+
+const ParisMapPreview = dynamic(
+  () => import("./ParisMapPreview").then((module) => module.ParisMapPreview),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="grid min-h-[520px] place-items-center rounded-[var(--radius-medium)] border border-[var(--color-border)] bg-white text-sm font800 text-[var(--color-text-secondary)]">
+        Loading the Paris map
+      </div>
+    ),
+  },
+);
 
 export function FindHelpResults({
   students,
   category,
   service,
+  initialView = "list",
+  initialAreas = [],
 }: {
   students: Student[];
   category?: string;
   service?: string;
+  initialView?: "list" | "map";
+  initialAreas?: number[];
 }) {
-  const [view, setView] = useState<"list" | "map">("list");
+  const [view, setView] = useState<"list" | "map">(initialView);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("view", view);
+    window.history.replaceState(null, "", url);
+  }, [view]);
+
+  function updateAreasInUrl(areas: number[]) {
+    const url = new URL(window.location.href);
+    if (areas.length) {
+      url.searchParams.set("areas", areas.join(","));
+    } else {
+      url.searchParams.delete("areas");
+    }
+    window.history.replaceState(null, "", url);
+  }
 
   return (
     <div>
@@ -28,10 +60,10 @@ export function FindHelpResults({
             key={value as string}
             type="button"
             onClick={() => setView(value as "list" | "map")}
-            className={`inline-flex min-h-10 items-center gap-2 rounded-md border px-4 text-sm font900 transition ${
+            className={`inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-sm font900 transition ${
               view === value
-                ? "border-[#152238] bg-[#152238] text-white"
-                : "border-[#E5E7EB] bg-white text-[#667085] hover:text-[#152238]"
+                ? "border-[var(--color-brand-dark)] bg-[var(--color-brand-dark)] text-white"
+                : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:text-[var(--color-brand-dark)]"
             }`}
           >
             <Icon size={16} aria-hidden />
@@ -52,7 +84,12 @@ export function FindHelpResults({
         </div>
       ) : (
         <div className="mt-6">
-          <ParisMapPreview students={students} title={service ? `${service} in Paris` : "Students in Paris"} />
+          <ParisMapPreview
+            students={students}
+            title={service ? `${service} in Paris` : "Students in Paris"}
+            initialAreas={initialAreas}
+            onAreasChange={updateAreasInUrl}
+          />
         </div>
       )}
     </div>
