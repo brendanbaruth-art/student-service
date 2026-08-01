@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { X } from "lucide-react";
@@ -20,12 +20,12 @@ export function RecentSearches() {
 
   return (
     <div className="mt-5 flex flex-wrap items-center gap-2">
-      <span className="text-sm font900 text-[#667085]">Recent searches</span>
+      <span className="text-sm font900 text-[var(--color-text-secondary)]">Recent searches</span>
       {items.map((item) => (
         <Link
           key={item}
           href={`/search?q=${encodeURIComponent(item)}`}
-          className="rounded-full border border-[#E5E7EB] bg-white px-3 py-2 text-sm font800 text-[#475467] transition hover:border-[#5B7CFA] hover:text-[#152238]"
+          className="rounded-full border border-[var(--color-border)] bg-white px-3 py-2 text-sm font800 text-[var(--color-text-secondary)] transition hover:border-[var(--color-brand)] hover:text-[var(--color-brand-dark)]"
         >
           {item}
         </Link>
@@ -36,7 +36,7 @@ export function RecentSearches() {
           window.localStorage.removeItem(key);
           setItems([]);
         }}
-        className="inline-flex min-h-9 items-center gap-1 rounded-full px-3 text-sm font900 text-[#667085] hover:bg-white hover:text-[#152238]"
+        className="inline-flex min-h-9 items-center gap-1 rounded-full px-3 text-sm font900 text-[var(--color-text-secondary)] hover:bg-white hover:text-[var(--color-brand-dark)]"
       >
         <X size={14} aria-hidden /> Clear
       </button>

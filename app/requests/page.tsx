@@ -1,4 +1,4 @@
-import { PageShell } from "@/components/PageShell";
+﻿import { PageShell } from "@/components/PageShell";
 import { RequestCard } from "@/components/RequestCard";
 import { SearchBox } from "@/components/SearchBox";
 import { openRequests } from "@/lib/data";
@@ -13,13 +13,13 @@ export default function RequestsPage() {
     <PageShell>
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <p className="text-sm font900 uppercase tracking-[0.18em] text-[#5B7CFA]">
+          <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">
             Browse requests
           </p>
-          <h1 className="mt-3 max-w-4xl text-4xl font900 tracking-tight text-[#152238] sm:text-5xl">
+          <h1 className="mt-3 max-w-4xl text-4xl font900 tracking-tight text-[var(--color-brand-dark)] sm:text-5xl">
             Students are posting tasks across Paris.
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-8 text-[#667085]">
+          <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-text-secondary)]">
             Find requests that match your skills, schedule, and preferred Paris areas.
           </p>
           <div className="mt-8">

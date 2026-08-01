@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import {
   BookOpen,
   Camera,
@@ -35,18 +35,18 @@ export function ServiceCard({ category, compact = false }: { category: ServiceCa
   return (
     <Link
       href={`/search?category=${category.slug}`}
-      className={`group block rounded-lg border border-[#E5E7EB] bg-white shadow-[0_1px_2px_rgba(21,34,56,0.04)] transition duration-300 hover:-translate-y-1 hover:border-[#C7D2FE] hover:shadow-[0_20px_42px_rgba(21,34,56,0.11)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#5B7CFA] ${
+      className={`group block rounded-lg border border-[var(--color-border)] bg-white shadow-[0_1px_2px_rgba(21,34,56,0.04)] transition duration-300 hover:-translate-y-1 hover:border-[var(--color-brand)] hover:shadow-[0_20px_42px_rgba(21,34,56,0.11)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-brand)] ${
         compact ? "p-4" : "p-5"
       }`}
     >
       <div className="flex items-start gap-4">
-        <span className="grid size-11 shrink-0 place-items-center rounded-md bg-[#EEF2FF] text-[#5B7CFA] transition duration-300 group-hover:bg-[#5B7CFA] group-hover:text-white">
+        <span className="grid size-11 shrink-0 place-items-center rounded-md bg-[var(--color-blue-soft)] text-[var(--color-brand)] transition duration-300 group-hover:bg-[var(--color-brand)] group-hover:text-white">
           <Icon size={20} aria-hidden />
         </span>
         <div className="min-w-0">
-          <h3 className="text-base font900 text-[#172033]">{category.name}</h3>
-          <p className="mt-2 text-sm leading-6 text-[#667085]">{category.description}</p>
-          <p className="mt-4 text-sm font800 text-[#152238]">{category.startingPrice}</p>
+          <h3 className="text-base font900 text-[var(--color-text)]">{category.name}</h3>
+          <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">{category.description}</p>
+          <p className="mt-4 text-sm font800 text-[var(--color-brand-dark)]">{category.startingPrice}</p>
         </div>
       </div>
     </Link>

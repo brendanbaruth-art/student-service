@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { SlidersHorizontal } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { FilterControls } from "@/components/FilterControls";
@@ -52,7 +52,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
             Compare students by services, price, rating, response time, and availability.
           </p>
           {corrected ? (
-            <p className="mt-4 inline-flex rounded-full bg-[#E8F5EF] px-3 py-2 text-sm font900 text-[#26755B]">
+            <p className="mt-4 inline-flex rounded-full bg-[var(--color-success-soft)] px-3 py-2 text-sm font900 text-[var(--color-success)]">
               Showing results for &quot;{correctedQuery}&quot;
             </p>
           ) : null}

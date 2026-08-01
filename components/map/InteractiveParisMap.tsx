@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Expand, LocateFixed, MapPin, Minimize2, RotateCcw, X } from "lucide-react";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   arrondissements,
   countStudentsByArrondissement,
@@ -12,11 +13,20 @@ import {
 } from "@/lib/data";
 import { Button } from "@/components/Button";
 
+export type GuidedMapFocus = {
+  areaNumber: number;
+  center?: [number, number];
+  zoom?: number;
+  studentId?: string;
+};
+
 type ParisMapPreviewProps = {
   students: Student[];
   title?: string;
   initialAreas?: number[];
   onAreasChange?: (areas: number[]) => void;
+  variant?: "marketplace" | "story";
+  guidedFocus?: GuidedMapFocus;
 };
 
 type ParisFeature = {
@@ -61,6 +71,8 @@ export function InteractiveParisMap({
   title = "Students in Paris",
   initialAreas = [],
   onAreasChange,
+  variant = "marketplace",
+  guidedFocus,
 }: ParisMapPreviewProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
@@ -74,6 +86,8 @@ export function InteractiveParisMap({
   const [expanded, setExpanded] = useState(false);
   const [mapError, setMapError] = useState("");
   const [mapReady, setMapReady] = useState(false);
+  const [manualInteraction, setManualInteraction] = useState(variant !== "story");
+  const storyMode = variant === "story";
 
   const counts = useMemo(() => countStudentsByArrondissement(students), [students]);
   const visibleStudents = useMemo(
@@ -140,6 +154,14 @@ export function InteractiveParisMap({
     });
   }, []);
 
+  const enableManualInteraction = useCallback(() => {
+    setManualInteraction(true);
+    if (mapRef.current) {
+      enableMapGestures(mapRef.current);
+    }
+    scheduleResize();
+  }, [scheduleResize]);
+
   const fitSelectedAreas = useCallback(() => {
     if (!mapRef.current || !geoJson || selectedAreasRef.current.length === 0) {
       fitToParis();
@@ -180,22 +202,19 @@ export function InteractiveParisMap({
     }
 
     let cancelled = false;
+    setMapReady(false);
+    setMapError("");
+    setGeoJson(null);
 
     async function initialiseMap() {
       try {
         const maplibregl = await import("maplibre-gl");
-        const response = await fetch("/paris-arrondissements.geojson");
-        if (!response.ok) {
-          throw new Error("Unable to load Paris boundaries.");
-        }
-        const parisGeoJson = (await response.json()) as ParisFeatureCollection;
 
         if (cancelled || !containerRef.current) {
           return;
         }
 
         mapLibRef.current = maplibregl;
-        setGeoJson(parisGeoJson);
 
         const map = new maplibregl.Map({
           container: containerRef.current,
@@ -209,6 +228,9 @@ export function InteractiveParisMap({
 
         mapRef.current = map;
         scheduleResize();
+        if (storyMode) {
+          disableMapGestures(map);
+        }
         map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
         map.addControl(new maplibregl.FullscreenControl(), "top-right");
         map.addControl(new maplibregl.GeolocateControl({ trackUserLocation: false }), "top-right");
@@ -232,10 +254,32 @@ export function InteractiveParisMap({
                 : null,
             });
           }
-          setMapError("The Paris map could not be loaded.");
+          if (!map.loaded()) {
+            setMapError("The map could not load right now.");
+          }
         });
 
-        map.once("load", () => {
+        map.once("load", async () => {
+          let parisGeoJson: ParisFeatureCollection | null = null;
+          try {
+            const response = await fetch("/paris-arrondissements.geojson");
+            if (!response.ok) {
+              throw new Error("Unable to load Paris boundaries.");
+            }
+            parisGeoJson = (await response.json()) as ParisFeatureCollection;
+            if (cancelled || mapRef.current !== map) {
+              return;
+            }
+            setGeoJson(parisGeoJson);
+          } catch (error) {
+            if (process.env.NODE_ENV !== "production") {
+              console.warn("Etudo arrondissement layer failed", error);
+            }
+            scheduleResize();
+            setMapReady(true);
+            return;
+          }
+
           if (!map.getSource(AREA_SOURCE_ID)) {
             map.addSource(AREA_SOURCE_ID, {
               type: "geojson",
@@ -251,7 +295,7 @@ export function InteractiveParisMap({
               "fill-color": [
                 "case",
                 ["==", ["get", "selected"], true],
-                "#5B7CFA",
+                "#438BF5",
                 [
                   "interpolate",
                   ["linear"],
@@ -289,13 +333,14 @@ export function InteractiveParisMap({
               "text-allow-overlap": false,
             },
             paint: {
-              "text-color": "#152238",
+              "text-color": "#102A43",
               "text-halo-color": "#FFFFFF",
               "text-halo-width": 1.2,
             },
           });
 
           map.on("click", AREA_FILL_ID, (event) => {
+            enableManualInteraction();
             const feature = event.features?.[0] as ParisFeature | undefined;
             const areaNumber = Number(feature?.properties?.c_ar);
             if (areaNumber) {
@@ -319,7 +364,7 @@ export function InteractiveParisMap({
           console.warn("Etudo map initialization failed", error);
         }
         if (!cancelled) {
-          setMapError("The Paris map could not be loaded.");
+          setMapError("The map could not load right now.");
         }
       }
     }
@@ -332,8 +377,9 @@ export function InteractiveParisMap({
       markersRef.current = [];
       mapRef.current?.remove();
       mapRef.current = null;
+      setMapReady(false);
     };
-  }, [enrichGeoJson, fitToParis, scheduleResize, toggleArea]);
+  }, [enableManualInteraction, enrichGeoJson, expanded, fitToParis, scheduleResize, storyMode, toggleArea]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -365,6 +411,38 @@ export function InteractiveParisMap({
   }, [enrichGeoJson, geoJson, selectedAreas]);
 
   useEffect(() => {
+    if (!mapReady || !guidedFocus || manualInteraction || !mapRef.current) {
+      return;
+    }
+
+    const area = arrondissements.find((item) => item.number === guidedFocus.areaNumber);
+    const center = guidedFocus.center || (area ? [area.center.longitude, area.center.latitude] as [number, number] : undefined);
+    if (!center) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => {
+      selectedAreasRef.current = [guidedFocus.areaNumber];
+      setSelectedAreas([guidedFocus.areaNumber]);
+      if (guidedFocus.studentId) {
+        setActiveStudentId(guidedFocus.studentId);
+      }
+    });
+    mapRef.current.flyTo({
+      center,
+      zoom: guidedFocus.zoom || 12.8,
+      duration: 900,
+      essential: false,
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [
+    guidedFocus,
+    manualInteraction,
+    mapReady,
+  ]);
+
+  useEffect(() => {
     const maplibregl = mapLibRef.current;
     const map = mapRef.current;
     if (!mapReady || !maplibregl || !map) {
@@ -392,11 +470,14 @@ export function InteractiveParisMap({
       if (group.length > 2) {
         const markerElement = document.createElement("button");
         markerElement.type = "button";
-        markerElement.className =
-          "grid min-h-11 min-w-11 place-items-center rounded-full border border-white bg-[#152238] px-3 text-sm font900 text-white shadow-[0_18px_34px_rgba(21,34,56,0.28)] transition hover:scale-105";
+        const selectedCluster = selectedAreasRef.current.includes(areaNumber);
+        markerElement.className = selectedCluster
+          ? "grid min-h-11 min-w-11 place-items-center rounded-full border border-white bg-[var(--color-accent)] px-3 text-sm font900 text-[var(--color-brand-dark)] shadow-[0_18px_34px_rgba(16,42,67,0.28)] transition hover:scale-105"
+          : "grid min-h-11 min-w-11 place-items-center rounded-full border border-white bg-[var(--color-feature-dark)] px-3 text-sm font900 text-white shadow-[0_18px_34px_rgba(16,42,67,0.28)] transition hover:scale-105";
         markerElement.textContent = `${group.length}`;
         markerElement.setAttribute("aria-label", `${group.length} students in ${area.name}`);
         markerElement.addEventListener("click", () => {
+          enableManualInteraction();
           updateSelectedAreas([areaNumber]);
           map.flyTo({ center: [area.center.longitude, area.center.latitude], zoom: 12.7, duration: 700 });
         });
@@ -412,7 +493,9 @@ export function InteractiveParisMap({
         const markerElement = document.createElement("button");
         markerElement.type = "button";
         markerElement.className =
-          "relative grid size-12 place-items-center overflow-hidden rounded-full border-2 border-white bg-white shadow-[0_14px_28px_rgba(21,34,56,0.24)] transition hover:scale-105";
+          activeStudentId === student.id
+            ? "relative grid size-12 place-items-center overflow-hidden rounded-full border-4 border-[var(--color-accent)] bg-white shadow-[0_14px_28px_rgba(16,42,67,0.24)] transition hover:scale-105"
+            : "relative grid size-12 place-items-center overflow-hidden rounded-full border-2 border-white bg-white shadow-[0_14px_28px_rgba(16,42,67,0.24)] transition hover:scale-105";
         markerElement.setAttribute("aria-label", `Preview ${student.displayName}`);
 
         const img = document.createElement("img");
@@ -421,6 +504,7 @@ export function InteractiveParisMap({
         img.className = "h-full w-full object-cover";
         markerElement.appendChild(img);
         markerElement.addEventListener("click", () => {
+          enableManualInteraction();
           setActiveStudentId(student.id);
           map.flyTo({
             center: [
@@ -441,7 +525,7 @@ export function InteractiveParisMap({
         markersRef.current.push(marker);
       });
     });
-  }, [mapReady, updateSelectedAreas, visibleStudents]);
+  }, [activeStudentId, enableManualInteraction, mapReady, updateSelectedAreas, visibleStudents]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -450,19 +534,36 @@ export function InteractiveParisMap({
       }
     }
 
+    function onPointerDown(event: PointerEvent) {
+      const target = event.target as HTMLElement | null;
+      const button = target?.closest("button");
+      if (button?.textContent?.includes("Exit map")) {
+        setExpanded(false);
+      }
+    }
+
     if (expanded) {
       window.addEventListener("keydown", onKeyDown);
+      document.addEventListener("pointerdown", onPointerDown, true);
+      if (mapRef.current) {
+        enableMapGestures(mapRef.current);
+      }
       scheduleResize();
     }
 
-    return () => window.removeEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("pointerdown", onPointerDown, true);
+    };
   }, [expanded, scheduleResize]);
 
-  return (
+  const content = (
     <section
       className={
         expanded
-          ? "fixed inset-0 z-[80] grid h-[100dvh] w-[100vw] grid-rows-[auto_1fr] gap-4 overflow-hidden bg-[var(--color-background)] p-3 sm:p-5"
+          ? "fixed inset-0 z-[1000] grid h-[100dvh] w-[100vw] grid-rows-[auto_1fr] gap-4 overflow-hidden bg-[var(--color-background)] p-3 sm:p-5"
+          : storyMode
+            ? "grid gap-4"
           : "grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]"
       }
       aria-label="Interactive Paris student map"
@@ -500,7 +601,7 @@ export function InteractiveParisMap({
               : "overflow-hidden rounded-[var(--radius-medium)] border border-[var(--color-border)] bg-white shadow-[var(--shadow-medium)]"
           }
         >
-          {!expanded ? (
+          {!expanded && !storyMode ? (
             <div className="border-b border-[var(--color-border)] p-4">
               <MapToolbar
                 title={title}
@@ -509,10 +610,13 @@ export function InteractiveParisMap({
                 onClear={() => updateSelectedAreas([])}
                 onUseLocation={useLocation}
                 onFitSelected={fitSelectedAreas}
-                onToggleExpanded={() => setExpanded(true)}
+                onToggleExpanded={() => {
+                  enableManualInteraction();
+                  setExpanded(true);
+                }}
               />
               {locationNote ? (
-                <p className="mt-3 text-sm font800 text-[#26755B]">{locationNote}</p>
+                <p className="mt-3 text-sm font800 text-[var(--color-success)]">{locationNote}</p>
               ) : null}
             </div>
           ) : null}
@@ -533,8 +637,45 @@ export function InteractiveParisMap({
             </div>
           ) : null}
 
-          <div className={expanded ? "etudo-map-frame-full" : "etudo-map-frame"}>
+          <div className={expanded ? "etudo-map-frame-full" : storyMode ? "etudo-story-map-frame" : "etudo-map-frame"}>
             <div ref={containerRef} className="h-full w-full" />
+            {storyMode && !expanded ? (
+              <div className="pointer-events-none absolute inset-x-4 bottom-4 flex flex-col gap-3 sm:inset-x-6 sm:flex-row sm:items-end sm:justify-between">
+                <div className="pointer-events-auto rounded-[var(--radius-medium)] border border-white/70 bg-white/90 p-4 shadow-[var(--shadow-medium)] backdrop-blur-xl">
+                  <p className="text-sm font900 text-[var(--color-brand-dark)]">
+                    {manualInteraction ? "Map interaction is on" : "Click to explore the map"}
+                  </p>
+                  <p className="mt-1 max-w-xs text-sm text-[var(--color-text-secondary)]">
+                    Scroll stays with the page until you choose to explore.
+                  </p>
+                </div>
+                <div className="pointer-events-auto flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={enableManualInteraction}
+                    className="inline-flex min-h-11 items-center rounded-full bg-[var(--color-accent)] px-4 text-sm font900 text-[var(--color-brand-dark)] shadow-[var(--shadow-small)]"
+                  >
+                    Explore the map
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      enableManualInteraction();
+                      setExpanded(true);
+                    }}
+                    className="inline-flex min-h-11 items-center rounded-full bg-[var(--color-feature-dark)] px-4 text-sm font900 text-white shadow-[var(--shadow-small)]"
+                  >
+                    Expand map
+                  </button>
+                  <a
+                    href="/browse?view=list"
+                    className="inline-flex min-h-11 items-center rounded-full border border-[var(--color-border)] bg-white px-4 text-sm font900 text-[var(--color-brand-dark)] shadow-[var(--shadow-small)]"
+                  >
+                    List view
+                  </a>
+                </div>
+              </div>
+            ) : null}
             {mapError ? (
               <div className="absolute inset-x-4 top-4 rounded-[var(--radius-small)] border border-[var(--color-border)] bg-white/92 p-4 text-sm font800 text-[var(--color-text-secondary)] shadow-[var(--shadow-small)] backdrop-blur">
                 <p className="font900 text-[var(--color-brand-dark)]">{mapError}</p>
@@ -559,7 +700,7 @@ export function InteractiveParisMap({
                 </div>
               </div>
             ) : null}
-            <div className="pointer-events-none absolute inset-x-3 bottom-3 lg:hidden">
+            {!storyMode ? <div className="pointer-events-none absolute inset-x-3 bottom-3 lg:hidden">
               <div className="pointer-events-auto max-h-56 overflow-y-auto rounded-[var(--radius-medium)] border border-white/60 bg-white/90 p-3 shadow-[var(--shadow-medium)] backdrop-blur-xl">
                 <StudentMiniList
                   students={visibleStudents.slice(0, 5)}
@@ -567,20 +708,22 @@ export function InteractiveParisMap({
                   onSelect={setActiveStudentId}
                 />
               </div>
-            </div>
+            </div> : null}
           </div>
         </div>
 
-        <aside className="hidden max-h-full min-h-0 overflow-y-auto pr-1 lg:block">
+        {!storyMode || expanded ? <aside className="hidden max-h-full min-h-0 overflow-y-auto pr-1 lg:block">
           <StudentMapSidebar
             activeStudent={activeStudent}
             students={visibleStudents}
             onSelect={setActiveStudentId}
           />
-        </aside>
+        </aside> : null}
       </div>
     </section>
   );
+
+  return expanded && typeof document !== "undefined" ? createPortal(content, document.body) : content;
 }
 
 function MapToolbar({
@@ -681,7 +824,7 @@ function StudentMapSidebar({
             {activeStudent.capabilities.slice(0, 4).map((capability) => (
               <span
                 key={capability.service}
-                className="rounded-full bg-[var(--color-background)] px-3 py-1 text-xs font900 text-[#475467]"
+                className="rounded-full bg-[var(--color-background)] px-3 py-1 text-xs font900 text-[var(--color-text-secondary)]"
               >
                 {capability.service}
               </span>
@@ -776,6 +919,26 @@ function getFeatureBounds(features: ParisFeature[]) {
     [minLng, minLat],
     [maxLng, maxLat],
   ] as [[number, number], [number, number]];
+}
+
+function disableMapGestures(map: MapLibreMap) {
+  map.scrollZoom.disable();
+  map.boxZoom.disable();
+  map.dragRotate.disable();
+  map.dragPan.disable();
+  map.keyboard.disable();
+  map.doubleClickZoom.disable();
+  map.touchZoomRotate.disable();
+}
+
+function enableMapGestures(map: MapLibreMap) {
+  map.scrollZoom.enable();
+  map.boxZoom.enable();
+  map.dragRotate.enable();
+  map.dragPan.enable();
+  map.keyboard.enable();
+  map.doubleClickZoom.enable();
+  map.touchZoomRotate.enable();
 }
 
 function buildListHref() {

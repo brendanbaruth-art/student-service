@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import { notFound } from "next/navigation";
 import { CalendarDays, Flag, Languages, MapPin, MessageCircle, ShieldCheck, Sparkles, Star } from "lucide-react";
 import { BookingSummary } from "@/components/BookingSummary";
@@ -58,12 +58,12 @@ export default async function StudentProfilePage({ params }: StudentProfileProps
             />
           </div>
           <div className="self-center">
-            {student.verified ? <VerificationBadge /> : <span className="rounded-full bg-[#F8F7F3] px-3 py-1 text-sm font900 text-[#667085]">New on Etudo</span>}
-            <h1 className="mt-5 text-5xl font900 tracking-tight text-[#152238]">
+            {student.verified ? <VerificationBadge /> : <span className="rounded-full bg-[var(--color-surface-soft)] px-3 py-1 text-sm font900 text-[var(--color-text-secondary)]">New on Etudo</span>}
+            <h1 className="mt-5 text-5xl font900 tracking-tight text-[var(--color-brand-dark)]">
               {student.displayName}
             </h1>
-            <p className="mt-3 text-lg font800 text-[#667085]">{student.university}</p>
-            <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm font700 text-[#667085]">
+            <p className="mt-3 text-lg font800 text-[var(--color-text-secondary)]">{student.university}</p>
+            <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm font700 text-[var(--color-text-secondary)]">
               <span className="flex items-center gap-2">
                 <MapPin size={17} aria-hidden />
                 {student.area} · {student.distance}
@@ -81,7 +81,7 @@ export default async function StudentProfilePage({ params }: StudentProfileProps
                 {student.languages.join(", ")}
               </span>
             </div>
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-[#667085]">{student.bio}</p>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-[var(--color-text-secondary)]">{student.bio}</p>
             <div className="mt-6 grid gap-3 sm:grid-cols-4">
               {[
                 student.responseRate || "New on Etudo",
@@ -89,8 +89,8 @@ export default async function StudentProfilePage({ params }: StudentProfileProps
                 student.repeatBookings ? `${student.repeatBookings} repeat bookings` : "Open to first booking",
                 `Member since ${student.memberSince}`,
               ].map((item) => (
-                <div key={item} className="rounded-lg border border-[#E5E7EB] bg-[#F8F7F3] p-4">
-                  <p className="text-sm font900 text-[#152238]">{item}</p>
+                <div key={item} className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+                  <p className="text-sm font900 text-[var(--color-brand-dark)]">{item}</p>
                 </div>
               ))}
             </div>
@@ -108,37 +108,37 @@ export default async function StudentProfilePage({ params }: StudentProfileProps
 
       <section className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_380px] lg:px-8">
         <div className="grid gap-8">
-          <section className="rounded-lg border border-[#E5E7EB] bg-white p-6">
-            <h2 className="text-2xl font900 text-[#152238]">About me</h2>
-            <p className="mt-4 max-w-3xl leading-7 text-[#667085]">{student.bio}</p>
+          <section className="rounded-lg border border-[var(--color-border)] bg-white p-6">
+            <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">About me</h2>
+            <p className="mt-4 max-w-3xl leading-7 text-[var(--color-text-secondary)]">{student.bio}</p>
           </section>
 
-          <section className="rounded-lg border border-[#E5E7EB] bg-white p-6">
-            <h2 className="text-2xl font900 text-[#152238]">What I can help with</h2>
-            <p className="mt-2 text-sm leading-6 text-[#667085]">
+          <section className="rounded-lg border border-[var(--color-border)] bg-white p-6">
+            <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">What I can help with</h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
               Each service has its own price and availability.
             </p>
             <div className="mt-5 grid gap-4">
               {student.capabilities.map((capability) => (
-                <div key={capability.service} className="rounded-lg border border-[#E5E7EB] p-4">
+                <div key={capability.service} className="rounded-lg border border-[var(--color-border)] p-4">
                   <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
                     <div>
-                      <h3 className="flex items-center gap-2 text-lg font900 text-[#172033]">
-                        <Sparkles size={18} className="text-[#5B7CFA]" aria-hidden />
+                      <h3 className="flex items-center gap-2 text-lg font900 text-[var(--color-text)]">
+                        <Sparkles size={18} className="text-[var(--color-brand)]" aria-hidden />
                         {capability.service}
                       </h3>
-                      <p className="mt-2 max-w-2xl text-sm leading-6 text-[#667085]">
+                      <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--color-text-secondary)]">
                         {capability.description}
                       </p>
-                      <div className="mt-3 flex flex-wrap gap-2 text-xs font800 text-[#667085]">
-                        <span className="rounded-full bg-[#F8F7F3] px-3 py-1">{capability.availability}</span>
-                        <span className="rounded-full bg-[#F8F7F3] px-3 py-1">
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs font800 text-[var(--color-text-secondary)]">
+                        <span className="rounded-full bg-[var(--color-surface-soft)] px-3 py-1">{capability.availability}</span>
+                        <span className="rounded-full bg-[var(--color-surface-soft)] px-3 py-1">
                           {capability.pricingType === "hourly" ? "Hourly" : capability.pricingType === "fixed-from" ? "Fixed from" : "Fixed price"}
                         </span>
                       </div>
                     </div>
                     <div className="shrink-0 md:text-right">
-                      <p className="text-lg font900 text-[#152238]">
+                      <p className="text-lg font900 text-[var(--color-brand-dark)]">
                         {capability.pricingType === "hourly" ? `€${capability.price}/hour` : capability.pricingType === "fixed-from" ? `From €${capability.price}` : `€${capability.price} fixed`}
                       </p>
                       <Button href={`/booking?student=${student.id}&service=${encodeURIComponent(capability.service)}`} variant="secondary" className="mt-3">
@@ -152,94 +152,94 @@ export default async function StudentProfilePage({ params }: StudentProfileProps
           </section>
 
           <section className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-lg border border-[#E5E7EB] bg-white p-6">
-              <h2 className="flex items-center gap-2 text-2xl font900 text-[#152238]">
+            <div className="rounded-lg border border-[var(--color-border)] bg-white p-6">
+              <h2 className="flex items-center gap-2 text-2xl font900 text-[var(--color-brand-dark)]">
                 <CalendarDays size={22} aria-hidden />
                 Availability
               </h2>
               <div className="mt-5 grid gap-2 text-sm">
                 {student.weeklyAvailability?.map((item) => (
-                  <div key={item.day} className="flex items-center justify-between rounded-md bg-[#F8F7F3] px-3 py-3">
-                    <span className="font900 text-[#172033]">{item.day}</span>
-                    <span className="font800 text-[#667085]">{item.time}</span>
+                  <div key={item.day} className="flex items-center justify-between rounded-md bg-[var(--color-surface-soft)] px-3 py-3">
+                    <span className="font900 text-[var(--color-text)]">{item.day}</span>
+                    <span className="font800 text-[var(--color-text-secondary)]">{item.time}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div className="rounded-lg border border-[#E5E7EB] bg-white p-6">
-              <h2 className="text-2xl font900 text-[#152238]">Languages</h2>
+            <div className="rounded-lg border border-[var(--color-border)] bg-white p-6">
+              <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">Languages</h2>
               <div className="mt-5 grid gap-2 text-sm">
                 {student.languageLevels?.map((item) => (
-                  <div key={item.language} className="flex items-center justify-between rounded-md bg-[#F8F7F3] px-3 py-3">
-                    <span className="font900 text-[#172033]">{item.language}</span>
-                    <span className="font800 text-[#667085]">{item.level}</span>
+                  <div key={item.language} className="flex items-center justify-between rounded-md bg-[var(--color-surface-soft)] px-3 py-3">
+                    <span className="font900 text-[var(--color-text)]">{item.language}</span>
+                    <span className="font800 text-[var(--color-text-secondary)]">{item.level}</span>
                   </div>
                 ))}
               </div>
             </div>
           </section>
 
-          <section className="rounded-lg border border-[#E5E7EB] bg-white p-6">
-            <h2 className="text-2xl font900 text-[#152238]">Where I can help</h2>
-            <p className="mt-3 text-sm leading-6 text-[#667085]">
+          <section className="rounded-lg border border-[var(--color-border)] bg-white p-6">
+            <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">Where I can help</h2>
+            <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">
               Based in: {student.baseArrondissement ? `${student.baseArrondissement}e arrondissement` : student.area}. Exact addresses are never shown publicly.
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {student.serviceAreas.map((area) => (
-                <span key={area} className="rounded-full bg-[#EEF2FF] px-3 py-1 text-sm font900 text-[#5B7CFA]">
+                <span key={area} className="rounded-full bg-[var(--color-blue-soft)] px-3 py-1 text-sm font900 text-[var(--color-brand)]">
                   {area}
                 </span>
               ))}
             </div>
-            <p className="mt-4 text-sm font800 text-[#667085]">{student.travelNote}</p>
+            <p className="mt-4 text-sm font800 text-[var(--color-text-secondary)]">{student.travelNote}</p>
           </section>
 
-          <section className="rounded-lg border border-[#E5E7EB] bg-white p-6">
-            <h2 className="text-2xl font900 text-[#152238]">Reviews</h2>
+          <section className="rounded-lg border border-[var(--color-border)] bg-white p-6">
+            <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">Reviews</h2>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               {student.reviewSnippets.map((review) => (
-                <article key={review.author} className="rounded-lg bg-[#F8F7F3] p-4">
+                <article key={review.author} className="rounded-lg bg-[var(--color-surface-soft)] p-4">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font900 text-[#172033]">{review.author}</p>
-                    <span className="flex items-center gap-1 text-sm font800 text-[#172033]">
+                    <p className="font900 text-[var(--color-text)]">{review.author}</p>
+                    <span className="flex items-center gap-1 text-sm font800 text-[var(--color-text)]">
                       <Star size={15} className="fill-[#F5B544] text-[#F5B544]" aria-hidden />
                       {review.rating}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-[#667085]">{review.text}</p>
+                  <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">{review.text}</p>
                 </article>
               ))}
             </div>
           </section>
 
-          <section className="rounded-lg border border-[#E5E7EB] bg-white p-6">
-            <h2 className="text-2xl font900 text-[#152238]">Safety and verification</h2>
-            <p className="mt-3 text-sm leading-6 text-[#667085]">
+          <section className="rounded-lg border border-[var(--color-border)] bg-white p-6">
+            <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">Safety and verification</h2>
+            <p className="mt-3 text-sm leading-6 text-[var(--color-text-secondary)]">
               Etudo Verified represents the intended verification model: student status,
               university affiliation, identity review, and email confirmation.
             </p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
               {["Student status", "University affiliation", "Identity verification", "Email verification"].map((item) => (
-                <div key={item} className="flex items-center gap-3 rounded-md bg-[#F8F7F3] p-3 text-sm font800 text-[#172033]">
-                  <ShieldCheck size={16} className="text-[#4FAE8A]" aria-hidden />
+                <div key={item} className="flex items-center gap-3 rounded-md bg-[var(--color-surface-soft)] p-3 text-sm font800 text-[var(--color-text)]">
+                  <ShieldCheck size={16} className="text-[var(--color-success)]" aria-hidden />
                   {item}
                 </div>
               ))}
             </div>
             <div className="mt-5 flex flex-wrap gap-3">
-              <a href="/safety" className="inline-flex items-center gap-2 text-sm font900 text-[#5B7CFA] hover:text-[#152238]">
+              <a href="/safety" className="inline-flex items-center gap-2 text-sm font900 text-[var(--color-brand)] hover:text-[var(--color-brand-dark)]">
                 <ShieldCheck size={16} aria-hidden /> Safety
               </a>
-              <a href="/contact" className="inline-flex items-center gap-2 text-sm font900 text-[#667085] hover:text-[#152238]">
+              <a href="/contact" className="inline-flex items-center gap-2 text-sm font900 text-[var(--color-text-secondary)] hover:text-[var(--color-brand-dark)]">
                 <Flag size={16} aria-hidden /> Report profile
               </a>
             </div>
           </section>
         </div>
 
-        <aside className="hidden h-fit rounded-lg border border-[#E5E7EB] bg-white p-5 shadow-[0_18px_35px_rgba(21,34,56,0.08)] lg:sticky lg:top-24 lg:block">
-          <p className="text-sm text-[#667085]">Starting at</p>
-          <p className="mt-1 text-3xl font900 text-[#152238]">{student.startingPrice}</p>
+        <aside className="hidden h-fit rounded-lg border border-[var(--color-border)] bg-white p-5 shadow-[0_18px_35px_rgba(21,34,56,0.08)] lg:sticky lg:top-24 lg:block">
+          <p className="text-sm text-[var(--color-text-secondary)]">Starting at</p>
+          <p className="mt-1 text-3xl font900 text-[var(--color-brand-dark)]">{student.startingPrice}</p>
           <div className="mt-5 grid gap-4">
             <SelectField id="service" label="Service" defaultValue={student.capabilities[0].service}>
               {student.capabilities.map((capability) => (
@@ -261,7 +261,7 @@ export default async function StudentProfilePage({ params }: StudentProfileProps
 
       <section className="bg-white pb-24 lg:pb-0">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font900 tracking-tight text-[#152238]">Similar students</h2>
+          <h2 className="text-3xl font900 tracking-tight text-[var(--color-brand-dark)]">Similar students</h2>
           <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {similarStudents.map((item) => (
               <StudentCard key={item.id} student={item} />
@@ -270,7 +270,7 @@ export default async function StudentProfilePage({ params }: StudentProfileProps
         </div>
       </section>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E5E7EB] bg-white p-3 shadow-[0_-12px_30px_rgba(21,34,56,0.12)] lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-white p-3 shadow-[0_-12px_30px_rgba(21,34,56,0.12)] lg:hidden">
         <Button href={`/booking?student=${student.id}&service=${encodeURIComponent(student.capabilities[0].service)}`} className="w-full">
           Book {student.displayName} from {student.startingPrice}
         </Button>

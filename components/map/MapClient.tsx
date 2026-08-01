@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import type { Student } from "@/lib/data";
+import type { GuidedMapFocus } from "./InteractiveParisMap";
 import { MapLoadingState } from "./MapLoadingState";
 
 const InteractiveParisMap = dynamic(
@@ -17,6 +18,8 @@ export type MapClientProps = {
   title?: string;
   initialAreas?: number[];
   onAreasChange?: (areas: number[]) => void;
+  variant?: "marketplace" | "story";
+  guidedFocus?: GuidedMapFocus;
 };
 
 export function MapClient(props: MapClientProps) {

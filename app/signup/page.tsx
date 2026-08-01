@@ -1,4 +1,4 @@
-import { PageShell } from "@/components/PageShell";
+﻿import { PageShell } from "@/components/PageShell";
 import { SignupFlow } from "@/components/SignupFlow";
 
 export const metadata = {
@@ -11,13 +11,13 @@ export default function SignupPage() {
     <PageShell>
       <section className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:px-8">
         <div>
-          <p className="text-sm font900 uppercase tracking-[0.18em] text-[#5B7CFA]">
+          <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">
             Get started
           </p>
-          <h1 className="mt-3 text-4xl font900 tracking-tight text-[#152238] sm:text-5xl">
+          <h1 className="mt-3 text-4xl font900 tracking-tight text-[var(--color-brand-dark)] sm:text-5xl">
             Join a trusted student network in Paris.
           </h1>
-          <p className="mt-5 text-lg leading-8 text-[#667085]">
+          <p className="mt-5 text-lg leading-8 text-[var(--color-text-secondary)]">
             Create your account, choose how you want to use Etudo, and complete
             student verification when you are ready to book or offer services.
           </p>
@@ -27,7 +27,7 @@ export default function SignupPage() {
               "Offer services around your schedule",
               "Use one profile for booking and earning",
             ].map((item) => (
-              <div key={item} className="rounded-lg border border-[#E5E7EB] bg-white p-4 text-sm font800 text-[#172033]">
+              <div key={item} className="rounded-lg border border-[var(--color-border)] bg-white p-4 text-sm font800 text-[var(--color-text)]">
                 {item}
               </div>
             ))}

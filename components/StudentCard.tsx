@@ -1,4 +1,4 @@
-import Image from "next/image";
+﻿import Image from "next/image";
 import Link from "next/link";
 import { Clock, MapPin, Star } from "lucide-react";
 import type { Student } from "@/lib/data";
@@ -84,7 +84,7 @@ export function StudentCard({ student, service, category }: StudentCardProps) {
           {student.services.slice(0, 3).map((item) => (
             <span
               key={item.name}
-              className="rounded-full bg-[var(--color-background)] px-3 py-1 text-xs font800 text-[#475467]"
+              className="rounded-full bg-[var(--color-background)] px-3 py-1 text-xs font800 text-[var(--color-text-secondary)]"
             >
               {item.name}
             </span>

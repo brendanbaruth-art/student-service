@@ -31,14 +31,14 @@ const columns = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-[#E5E7EB] bg-white">
+    <footer className="border-t border-[var(--color-border)] bg-[var(--color-surface-soft)]">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.3fr_2fr] lg:px-8">
         <div>
           <Logo />
-          <p className="mt-4 max-w-sm text-sm leading-6 text-[#667085]">
+          <p className="mt-4 max-w-sm text-sm leading-6 text-[var(--color-text-secondary)]">
             Student-to-student help, built for life in Paris.
           </p>
-          <div className="mt-6 flex flex-wrap gap-3 text-sm text-[#667085]">
+          <div className="mt-6 flex flex-wrap gap-3 text-sm text-[var(--color-text-secondary)]">
             <span>Paris, France</span>
             <span aria-hidden>·</span>
             <span>English / Français</span>
@@ -47,10 +47,10 @@ export function Footer() {
         <div className="grid gap-8 sm:grid-cols-3">
           {columns.map((column) => (
             <div key={column.title}>
-              <h2 className="text-sm font800 text-[#152238]">{column.title}</h2>
-              <div className="mt-4 grid gap-3 text-sm text-[#667085]">
+              <h2 className="text-sm font800 text-[var(--color-brand-dark)]">{column.title}</h2>
+              <div className="mt-4 grid gap-3 text-sm text-[var(--color-text-secondary)]">
                 {column.links.map((link) => (
-                  <Link key={link.href} href={link.href} className="transition hover:text-[#152238]">
+                  <Link key={link.href} href={link.href} className="transition hover:text-[var(--color-brand-dark)]">
                     {link.label}
                   </Link>
                 ))}
@@ -59,7 +59,7 @@ export function Footer() {
           ))}
         </div>
       </div>
-      <div className="border-t border-[#E5E7EB] px-4 py-5 text-center text-sm text-[#667085]">
+      <div className="border-t border-[var(--color-border)] px-4 py-5 text-center text-sm text-[var(--color-text-secondary)]">
         © 2026 Etudo
       </div>
     </footer>

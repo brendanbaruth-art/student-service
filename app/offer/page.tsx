@@ -1,4 +1,4 @@
-import { BriefcaseBusiness, Calendar, Handshake, ShieldCheck, Star } from "lucide-react";
+﻿import { BriefcaseBusiness, Calendar, Handshake, ShieldCheck, Star } from "lucide-react";
 import { Button } from "@/components/Button";
 import { PageShell } from "@/components/PageShell";
 import { SelectField, TextAreaField, TextInput } from "@/components/FormField";
@@ -25,28 +25,28 @@ export default function OfferPage() {
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
           <div>
             <Toast message="Helper applications are open" />
-            <p className="mt-8 text-sm font900 uppercase tracking-[0.18em] text-[#5B7CFA]">
+            <p className="mt-8 text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">
               Offer a service
             </p>
-            <h1 className="mt-3 text-4xl font900 tracking-tight text-[#152238] sm:text-5xl">
+            <h1 className="mt-3 text-4xl font900 tracking-tight text-[var(--color-brand-dark)] sm:text-5xl">
               Earn money helping students around Paris.
             </h1>
-            <p className="mt-5 text-lg leading-8 text-[#667085]">
+            <p className="mt-5 text-lg leading-8 text-[var(--color-text-secondary)]">
               Choose the services you offer, set your own prices, and work around your studies.
             </p>
             <div className="mt-8 grid gap-3">
               {benefits.map(([benefit, Icon]) => (
-                <div key={benefit as string} className="flex items-center gap-3 rounded-lg border border-[#E5E7EB] bg-[#F8F7F3] p-4">
-                  <Icon size={19} className="text-[#4FAE8A]" aria-hidden />
-                  <span className="text-sm font800 text-[#172033]">{benefit as string}</span>
+                <div key={benefit as string} className="flex items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-4">
+                  <Icon size={19} className="text-[var(--color-success)]" aria-hidden />
+                  <span className="text-sm font800 text-[var(--color-text)]">{benefit as string}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <form className="rounded-lg border border-[#E5E7EB] bg-white p-5 shadow-[0_18px_35px_rgba(21,34,56,0.06)] sm:p-6">
-            <h2 className="text-2xl font900 text-[#152238]">Create your service listing</h2>
-            <p className="mt-2 text-sm leading-6 text-[#667085]">
+          <form className="rounded-lg border border-[var(--color-border)] bg-white p-5 shadow-[0_18px_35px_rgba(21,34,56,0.06)] sm:p-6">
+            <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">Create your service listing</h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
               Add one service to start. You can add more categories from your profile later.
             </p>
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
@@ -68,20 +68,20 @@ export default function OfferPage() {
               <TextInput id="tools" label="Tools or transport available" placeholder="Basic toolkit, cargo bike" />
               <TextInput id="languages" label="Languages" placeholder="French, English" />
             </div>
-            <div className="mt-6 rounded-lg bg-[#F8F7F3] p-4">
-              <h3 className="font900 text-[#172033]">Profile capability selector</h3>
-              <p className="mt-2 text-sm leading-6 text-[#667085]">
+            <div className="mt-6 rounded-lg bg-[var(--color-surface-soft)] p-4">
+              <h3 className="font900 text-[var(--color-text)]">Profile capability selector</h3>
+              <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
                 Select every job you are comfortable offering. Each selected service can have its own price.
               </p>
               <div className="mt-4 grid max-h-72 gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
                 {capabilityCatalog.map((capability, index) => (
-                  <label key={capability} className="flex items-center gap-3 rounded-md border border-[#E5E7EB] bg-white px-3 py-2 text-sm font800 text-[#172033]">
-                    <input type="checkbox" className="size-4 accent-[#4FAE8A]" defaultChecked={index < 8} />
+                  <label key={capability} className="flex items-center gap-3 rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-sm font800 text-[var(--color-text)]">
+                    <input type="checkbox" className="size-4 accent-[var(--color-success)]" defaultChecked={index < 8} />
                     <span className="min-w-0 flex-1">{capability}</span>
                     <input
                       aria-label={`${capability} price`}
-                      className="w-20 rounded-md border border-[#D0D5DD] px-2 py-1 text-xs"
-                      defaultValue={index % 3 === 0 ? "€25" : "€20/h"}
+                      className="w-20 rounded-md border border-[var(--color-border)] px-2 py-1 text-xs"
+                      defaultValue={index % 3 === 0 ? "€25" : "€30/h"}
                     />
                   </label>
                 ))}

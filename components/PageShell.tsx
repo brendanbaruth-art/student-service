@@ -4,7 +4,7 @@ import { Header } from "./Header";
 
 export function PageShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#F8F7F3] text-[#172033]">
+    <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)]">
       <Header />
       <main>{children}</main>
       <Footer />

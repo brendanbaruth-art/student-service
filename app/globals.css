@@ -1,22 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  --color-brand: #5b7cfa;
-  --color-brand-dark: #152238;
-  --color-accent: #4fae8a;
-  --color-background: #f8f7f3;
+  --color-brand: #438bf5;
+  --color-brand-dark: #102a43;
+  --color-accent: #ffd84d;
+  --color-background: #eaf6ff;
   --color-surface: #ffffff;
-  --color-surface-soft: #f5f6f8;
-  --color-blue-soft: #eef3ff;
-  --color-text: #172033;
-  --color-text-secondary: #667085;
-  --color-border: #e5e7eb;
+  --color-surface-soft: #f5faff;
+  --color-blue-soft: #dcefff;
+  --color-text: #102a43;
+  --color-text-secondary: #61758a;
+  --color-border: #d7e7f3;
+  --color-feature-dark: #102a43;
+  --color-yellow-soft: #fff3b0;
+  --color-success: #2d9a73;
+  --color-success-soft: #e4f5ef;
+  --color-success-border: #b7e4d3;
+  --color-danger: #b42318;
   --radius-small: 8px;
   --radius-medium: 14px;
   --radius-large: 24px;
-  --shadow-small: 0 1px 2px rgba(21, 34, 56, 0.05);
-  --shadow-medium: 0 18px 45px rgba(21, 34, 56, 0.12);
-  --shadow-large: 0 30px 80px rgba(21, 34, 56, 0.18);
+  --shadow-small: 0 1px 2px rgba(16, 42, 67, 0.06);
+  --shadow-medium: 0 18px 45px rgba(16, 42, 67, 0.12);
+  --shadow-large: 0 30px 80px rgba(16, 42, 67, 0.18);
   --duration-fast: 180ms;
   --duration-standard: 260ms;
   --z-nav: 50;
@@ -45,7 +51,7 @@ body {
 }
 
 ::selection {
-  background: #dfe5ff;
+  background: var(--color-yellow-soft);
   color: var(--color-brand-dark);
 }
 
@@ -91,7 +97,7 @@ button {
 
 .surface-glass {
   border: 1px solid rgba(255, 255, 255, 0.55);
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.82);
   box-shadow: var(--shadow-medium);
   backdrop-filter: blur(18px);
 }
@@ -100,14 +106,21 @@ button {
   position: relative;
   height: calc(100dvh - 64px);
   min-height: 560px;
-  background: #eff3f8;
+  background: var(--color-surface-soft);
 }
 
 .etudo-map-frame-full {
   position: relative;
   height: 100%;
   min-height: 0;
-  background: #eff3f8;
+  background: var(--color-surface-soft);
+}
+
+.etudo-story-map-frame {
+  position: relative;
+  height: min(74dvh, 720px);
+  min-height: 520px;
+  background: var(--color-surface-soft);
 }
 
 .maplibregl-map,
@@ -161,6 +174,13 @@ textarea {
   .etudo-map-frame {
     height: min(760px, calc(100dvh - 72px));
     min-height: 680px;
+  }
+}
+
+@media (max-width: 767px) {
+  .etudo-story-map-frame {
+    height: 560px;
+    min-height: 560px;
   }
 }
 

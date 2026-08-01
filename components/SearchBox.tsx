@@ -27,13 +27,13 @@ export function SearchBox({ defaultValue = "", compact = false, variant = "defau
       onSubmit={(event) => saveSearch(new FormData(event.currentTarget))}
       className={`grid w-full gap-2 rounded-lg border p-2 transition md:grid-cols-[1fr_150px_auto] ${
         hero
-          ? "border-white/45 bg-white/95 shadow-[0_24px_70px_rgba(0,0,0,0.28)] backdrop-blur"
-          : "border-[#E5E7EB] bg-white shadow-[0_18px_45px_rgba(21,34,56,0.12)]"
+          ? "border-white/45 bg-white/95 shadow-[0_24px_70px_rgba(16,42,67,0.28)] backdrop-blur focus-within:border-[var(--color-accent)]"
+          : "border-[var(--color-border)] bg-white shadow-[var(--shadow-medium)] focus-within:border-[var(--color-brand)] focus-within:ring-4 focus-within:ring-[var(--color-brand)]/10"
       } ${
         compact ? "max-w-4xl" : "max-w-5xl"
       }`}
     >
-      <label className="flex min-h-12 items-center gap-3 rounded-md px-3 text-[#667085]" htmlFor="q">
+      <label className="flex min-h-12 items-center gap-3 rounded-md px-3 text-[var(--color-text-secondary)]" htmlFor="q">
         <Search size={18} aria-hidden />
         <span className="sr-only">Search for help</span>
         <input
@@ -42,7 +42,7 @@ export function SearchBox({ defaultValue = "", compact = false, variant = "defau
           defaultValue={defaultValue}
           placeholder="What do you need help with?"
           list="etudo-search-suggestions"
-          className="min-w-0 flex-1 bg-transparent text-base font600 text-[#172033] outline-none placeholder:text-[#98A2B3]"
+          className="min-w-0 flex-1 bg-transparent text-base font600 text-[var(--color-text)] outline-none placeholder:text-[#8AA0B5]"
         />
         <datalist id="etudo-search-suggestions">
           {searchSuggestions.map((suggestion) => (
@@ -50,8 +50,8 @@ export function SearchBox({ defaultValue = "", compact = false, variant = "defau
           ))}
         </datalist>
       </label>
-      <label className="flex min-h-12 items-center gap-2 rounded-md border border-[#E5E7EB] px-3 text-sm font700 text-[#172033]" htmlFor="location">
-        <MapPin size={17} className="text-[#667085]" aria-hidden />
+      <label className="flex min-h-12 items-center gap-2 rounded-md border border-[var(--color-border)] px-3 text-sm font700 text-[var(--color-text)]" htmlFor="location">
+        <MapPin size={17} className="text-[var(--color-text-secondary)]" aria-hidden />
         <span className="sr-only">Location</span>
         <select id="location" name="location" defaultValue="Paris" className="w-full bg-transparent outline-none">
           <option>Paris</option>
