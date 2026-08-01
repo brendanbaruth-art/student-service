@@ -159,6 +159,114 @@ async function collectPageIssues(page, label) {
   return state;
 }
 
+async function assertCenterClickable(locator, label) {
+  const count = await locator.count();
+  if (count < 1) {
+    failures.push(`${label}: clickable element was not found`);
+    return;
+  }
+  const isClickable = await locator.first().evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const hit = document.elementFromPoint(x, y);
+    return Boolean(hit && (hit === element || element.contains(hit) || hit.closest("a,button") === element));
+  });
+  if (!isClickable) {
+    failures.push(`${label}: element center is covered by another layer`);
+  }
+}
+
+async function scrollToSectionProgress(page, selector, progress) {
+  const metrics = await page.locator(selector).evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      top: rect.top + window.scrollY,
+      height: rect.height,
+      viewportHeight: window.innerHeight,
+    };
+  });
+  const activeRange = Math.max(0, metrics.height - metrics.viewportHeight);
+  const top = metrics.top + activeRange * progress;
+  await page.evaluate((value) => window.scrollTo({ top: Math.max(0, value), behavior: "instant" }), top);
+  await page.waitForTimeout(600);
+}
+
+async function auditHomepageRepairs(page, viewportLabel) {
+  const hero = page.locator('[data-etudo-section="hero"]');
+  const heroText = await hero.innerText();
+  if (/Walk my dog|Help me move|Explain statistics|Build my desk|Take birthday photos|Fix my laptop/i.test(heroText)) {
+    failures.push(`${viewportLabel} hero: old floating suggestion labels are still visible`);
+  }
+  if (!heroText.includes("Popular searches:")) {
+    failures.push(`${viewportLabel} hero: popular search row is missing`);
+  }
+  await assertCenterClickable(hero.getByRole("link", { name: "Find help", exact: true }).first(), `${viewportLabel} hero Find help`);
+  await assertCenterClickable(hero.getByRole("link", { name: "Start earning", exact: true }).first(), `${viewportLabel} hero Start earning`);
+  await page.screenshot({ path: join(outputDir, `${slug(`${viewportLabel}-hero-repaired-initial`)}.png`) });
+  await scrollToSectionProgress(page, '[data-etudo-section="hero"]', 0.72);
+  await page.screenshot({ path: join(outputDir, `${slug(`${viewportLabel}-hero-repaired-end`)}.png`) });
+
+  await page.locator('[data-etudo-section="map"]').scrollIntoViewIfNeeded();
+  await page.waitForTimeout(2400);
+  const mapSectionText = await page.locator('[data-etudo-section="map"]').innerText();
+  if (/Click to explore the map/i.test(mapSectionText)) {
+    failures.push(`${viewportLabel} map: interaction gate overlay is still visible`);
+  }
+  const marker = page.getByRole("button", { name: /Preview|students in/i }).first();
+  if ((await marker.count()) < 1) {
+    failures.push(`${viewportLabel} map: no clickable student or cluster marker found`);
+  } else {
+    await marker.click();
+    await page.waitForTimeout(700);
+    if ((await page.getByRole("link", { name: "View profile", exact: true }).count()) < 1) {
+      failures.push(`${viewportLabel} map: marker click did not expose a student profile preview`);
+    }
+  }
+  const frame = page.locator(".etudo-story-map-frame").first();
+  const frameBox = await frame.boundingBox();
+  if (!frameBox) {
+    failures.push(`${viewportLabel} map: story map frame is missing`);
+  } else {
+    const x = frameBox.x + frameBox.width * 0.5;
+    const y = frameBox.y + frameBox.height * 0.52;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 80, y + 20, { steps: 8 });
+    await page.mouse.up();
+    await page.mouse.wheel(0, -420);
+    await page.waitForTimeout(700);
+    await page.screenshot({ path: join(outputDir, `${slug(`${viewportLabel}-map-after-drag-zoom`)}.png`) });
+  }
+  const fullMapButton = page.getByRole("button", { name: "Full map", exact: true }).first();
+  if ((await fullMapButton.count()) < 1) {
+    failures.push(`${viewportLabel} map: fullscreen control is missing`);
+  } else {
+    await fullMapButton.click();
+    await page.waitForTimeout(900);
+    await page.screenshot({ path: join(outputDir, `${slug(`${viewportLabel}-map-fullscreen`)}.png`) });
+    if ((await page.getByRole("button", { name: "Exit map", exact: true }).count()) < 1) {
+      failures.push(`${viewportLabel} map: fullscreen did not show Exit map`);
+    }
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(500);
+  }
+
+  await scrollToSectionProgress(page, '[data-etudo-section="book"]', 0.08);
+  await page.screenshot({ path: join(outputDir, `${slug(`${viewportLabel}-book-closed`)}.png`) });
+  await scrollToSectionProgress(page, '[data-etudo-section="book"]', 0.48);
+  await page.screenshot({ path: join(outputDir, `${slug(`${viewportLabel}-book-half-open`)}.png`) });
+  await scrollToSectionProgress(page, '[data-etudo-section="book"]', 0.84);
+  await page.screenshot({ path: join(outputDir, `${slug(`${viewportLabel}-book-open`)}.png`) });
+  const bookText = await page.locator('[data-etudo-section="book"]').innerText();
+  for (const phrase of ["Your time has value.", "Earn with what you already know.", "Choose your services"]) {
+    if (!bookText.includes(phrase)) {
+      failures.push(`${viewportLabel} book: missing "${phrase}"`);
+    }
+  }
+  await assertCenterClickable(page.getByRole("link", { name: "Become a tutor", exact: true }).first(), `${viewportLabel} book Become a tutor`);
+}
+
 async function auditRoute(browser, route, viewport) {
   const [width, height] = viewport;
   const context = await browser.newContext({ viewport: { width, height } });
@@ -195,6 +303,7 @@ async function auditRoute(browser, route, viewport) {
   await collectPageIssues(page, `${label} top`);
 
   if (route === "/") {
+    await auditHomepageRepairs(page, `${width}x${height}`);
     const scrollHeight = await page.evaluate(() => document.documentElement.scrollHeight);
     for (let index = 1; index <= 6; index += 1) {
       await page.evaluate((top) => window.scrollTo({ top, behavior: "instant" }), Math.floor((scrollHeight * index) / 7));

@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
-  BookOpen,
   CalendarCheck,
   CheckCircle2,
   ShieldCheck,
@@ -20,7 +19,7 @@ import {
   useSpring,
   useTransform,
 } from "motion/react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Button } from "@/components/Button";
 import { SearchBox } from "@/components/SearchBox";
 import { MapClient } from "@/components/map/MapClient";
@@ -34,7 +33,7 @@ const mobileVideo = "/etudo-paris-motion-mobile.webm";
 
 export function HomeScrollStory() {
   return (
-    <div className="overflow-hidden bg-[var(--color-background)] text-[var(--color-text)]">
+    <div className="overflow-x-clip bg-[var(--color-background)] text-[var(--color-text)]">
       <CinematicVideoHero />
       <PurposeSearchScene />
       <StudentSkillsReveal />
@@ -51,6 +50,7 @@ function CinematicVideoHero() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const reduceMotion = useReducedMotion();
   const [videoFailed, setVideoFailed] = useState(false);
+  const [loopMask, setLoopMask] = useState(false);
   const [saveData] = useState(() => {
     if (typeof navigator === "undefined") {
       return false;
@@ -62,9 +62,7 @@ function CinematicVideoHero() {
   const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 26, mass: 0.4 });
   const videoScale = useTransform(smooth, [0, 1], reduceMotion ? [1, 1] : [1, 1.045]);
   const headlineOpacity = useTransform(smooth, [0, 0.48, 0.72], [1, 0.85, 0]);
-  const searchY = useTransform(smooth, [0, 0.55], reduceMotion ? [0, 0] : [0, -28]);
   const lightWash = useTransform(smooth, [0.25, 1], [0, 0.72]);
-  const orbitRotate = useTransform(smooth, [0, 1], reduceMotion ? [0, 0] : [-10, 28]);
   const shouldShowVideo = !reduceMotion && !saveData && !videoFailed;
 
   useEffect(() => {
@@ -83,8 +81,41 @@ function CinematicVideoHero() {
     return () => document.removeEventListener("visibilitychange", onVisibilityChange);
   }, [shouldShowVideo]);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !shouldShowVideo) {
+      return;
+    }
+
+    function configurePlayback() {
+      if (!video) {
+        return;
+      }
+      video.playbackRate = 0.7;
+    }
+
+    function maskLoopPoint() {
+      if (!video || !Number.isFinite(video.duration) || video.duration <= 0) {
+        return;
+      }
+      const remaining = video.duration - video.currentTime;
+      setLoopMask(remaining < 0.85);
+    }
+
+    configurePlayback();
+    video.addEventListener("loadedmetadata", configurePlayback);
+    video.addEventListener("timeupdate", maskLoopPoint);
+    video.addEventListener("seeked", maskLoopPoint);
+
+    return () => {
+      video.removeEventListener("loadedmetadata", configurePlayback);
+      video.removeEventListener("timeupdate", maskLoopPoint);
+      video.removeEventListener("seeked", maskLoopPoint);
+    };
+  }, [shouldShowVideo]);
+
   return (
-    <section ref={sectionRef} className="relative h-[125dvh] bg-[var(--color-feature-dark)] text-white max-sm:h-[118dvh]">
+    <section ref={sectionRef} data-etudo-section="hero" className="relative h-[125dvh] bg-[var(--color-feature-dark)] text-white max-sm:h-[118dvh]">
       <div className="sticky top-0 min-h-[100dvh] overflow-hidden">
         <motion.div style={{ scale: videoScale }} className="pointer-events-none absolute inset-0">
           <Image
@@ -118,46 +149,50 @@ function CinematicVideoHero() {
           style={{ opacity: lightWash }}
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(234,246,255,0.08),rgba(234,246,255,0.88))]"
         />
+        <div
+          className={`pointer-events-none absolute inset-0 bg-[var(--color-feature-dark)] transition-opacity duration-700 ${
+            loopMask ? "opacity-55" : "opacity-0"
+          }`}
+          aria-hidden="true"
+        />
         <div className="relative z-[var(--z-content)] mx-auto flex min-h-[100dvh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
-          <motion.div style={{ opacity: headlineOpacity }} className="max-w-4xl">
-            <p className="text-sm font900 uppercase tracking-[0.2em] text-[var(--color-yellow-soft)]">
+          <motion.div style={{ opacity: headlineOpacity }} className="w-full min-w-0 max-w-4xl">
+            <p className="max-w-[24ch] text-xs font900 uppercase leading-5 tracking-[0.1em] text-[var(--color-yellow-soft)] sm:max-w-full sm:text-sm sm:tracking-[0.2em]">
               Student life, moving together.
             </p>
-            <h1 className="mt-5 max-w-[13ch] text-hero font900">
+            <h1 className="mt-4 max-w-[9ch] text-hero font900 sm:mt-5 sm:max-w-[13ch]">
               A city of students.
               <span className="block">A network of skills.</span>
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/82">
+            <p className="mt-5 max-w-2xl text-base leading-7 text-white/82 sm:text-lg sm:leading-8">
               Find help nearby, share what you know, and make life in Paris easier.
             </p>
-            <motion.div style={{ y: searchY }} className="relative mt-8 max-w-5xl">
+            <div className="relative mt-8 max-w-5xl">
               <SearchBox variant="hero" />
-              <motion.div
-                style={{ rotate: orbitRotate }}
-                className="pointer-events-none absolute -inset-x-2 -bottom-16 hidden h-14 items-center justify-between md:flex"
-                aria-hidden="true"
-              >
-                {heroSearchExamples.map((item, index) => (
-                  <span
-                    key={item}
-                    className={`rounded-full border border-white/30 bg-white/14 px-3 py-1 text-xs font900 text-white/86 backdrop-blur ${index % 2 ? "translate-y-4" : ""}`}
-                  >
-                    {item}
-                  </span>
-                ))}
-              </motion.div>
-            </motion.div>
-            <div className="mt-12 flex flex-col gap-3 sm:flex-row md:mt-16">
-              <Button href="/browse" className="bg-[var(--color-accent)] text-[var(--color-brand-dark)] hover:bg-[var(--color-yellow-soft)]">
+            </div>
+            <div className="relative z-[var(--z-content)] mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-row">
+              <Button href="/browse" className="w-full px-3 bg-[var(--color-accent)] text-[var(--color-brand-dark)] hover:bg-[var(--color-yellow-soft)]">
                 Find help
               </Button>
               <Button
                 href="/offer"
                 variant="secondary"
-                className="border-white/38 bg-white/12 text-white hover:border-white hover:bg-white/20 hover:text-white"
+                className="w-full border-white/38 bg-white/12 px-3 text-white hover:border-white hover:bg-white/20 hover:text-white"
               >
                 Start earning
               </Button>
+            </div>
+            <div className="mt-4 flex min-w-0 items-center gap-3 overflow-x-auto pb-2">
+                <span className="shrink-0 text-sm font900 text-white/72">Popular searches:</span>
+                {heroSearchExamples.map((item) => (
+                  <Link
+                    key={item}
+                    href={`/search?q=${encodeURIComponent(item)}&location=Paris`}
+                    className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-white/28 bg-white/12 px-3 text-sm font900 text-white/88 backdrop-blur transition hover:border-white/60 hover:bg-white/18 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                  >
+                    {item}
+                  </Link>
+                ))}
             </div>
           </motion.div>
         </div>
@@ -317,7 +352,7 @@ function ParisMotionScene() {
   const storyStudents = students.slice(0, 12);
 
   return (
-    <section ref={sectionRef} className="relative bg-[var(--color-background)]">
+    <section ref={sectionRef} data-etudo-section="map" className="relative bg-[var(--color-background)]">
       <div className="flex min-h-[100dvh] items-center overflow-hidden px-4 py-16 sm:px-6 lg:px-8">
         <motion.div
           style={{ opacity: lineOpacity, scaleX: lineScale }}
@@ -410,77 +445,99 @@ function BookEarningScene() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const reduceMotion = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end end"] });
-  const coverRotate = useTransform(scrollYProgress, [0.2, 0.45], reduceMotion ? [-138, -138] : [0, -138]);
-  const pageRotate = useTransform(scrollYProgress, [0.45, 0.65], reduceMotion ? [-116, -116] : [0, -116]);
-  const bookScale = useTransform(scrollYProgress, [0, 0.2, 1], reduceMotion ? [1, 1, 1] : [0.9, 1, 1.02]);
-  const copyOpacity = useTransform(scrollYProgress, [0.42, 0.6], [0.28, 1]);
+  const coverRotate = useTransform(scrollYProgress, [0.2, 0.65], reduceMotion ? [-158, -158] : [0, -158]);
+  const spreadOpacity = useTransform(scrollYProgress, [0.48, 0.7], [reduceMotion ? 1 : 0.18, 1]);
+  const actionsOpacity = useTransform(scrollYProgress, [0.72, 0.86], [reduceMotion ? 1 : 0, 1]);
+  const actionsPointerEvents = useTransform(scrollYProgress, (value) => (reduceMotion || value >= 0.72 ? "auto" : "none"));
+  const bookScale = useTransform(scrollYProgress, [0, 0.18, 1], reduceMotion ? [1, 1, 1] : [0.94, 1, 1]);
 
   return (
-    <section ref={sectionRef} className="relative bg-[var(--color-surface-soft)]">
-      <div className="grid min-h-[100dvh] place-items-center overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
-        <div className="mx-auto grid w-full max-w-6xl gap-10 xl:grid-cols-[1.1fr_0.9fr] xl:items-center">
-          <motion.div style={{ scale: bookScale }} className="relative mx-auto h-[470px] w-full max-w-[790px] [perspective:1800px] max-sm:h-auto max-sm:min-h-[520px]">
-            <div className="absolute left-1/2 top-1/2 h-[386px] w-[670px] -translate-x-1/2 -translate-y-1/2 rounded-[30px] bg-white shadow-[0_50px_120px_rgba(16,42,67,0.2)] max-sm:h-[440px] max-sm:w-[min(86vw,300px)]" />
-            <div className="absolute left-1/2 top-1/2 flex h-[360px] w-[640px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[24px] bg-[#FFFDF4] shadow-inner [transform-style:preserve-3d] max-sm:h-[420px] max-sm:w-[min(82vw,280px)] max-sm:flex-col">
-              <BookPage title="Your time has value." body="Between lectures, work, and evenings, your schedule can still create something useful." />
-              <BookPage title="Your skills can help someone." body="Teach a subject. Share a language. Take photos. Fix a laptop. Help someone move." right />
-            </div>
+    <section ref={sectionRef} data-etudo-section="book" className="relative h-[190dvh] bg-[var(--color-surface-soft)] max-sm:h-[155dvh]">
+      <div className="sticky top-0 grid min-h-[100dvh] place-items-center overflow-hidden px-4 py-16 sm:px-6 lg:px-8">
+        <motion.div
+          style={{ scale: bookScale }}
+          className="relative mx-auto w-full max-w-[960px] [perspective:1800px]"
+        >
+          <div className="relative mx-auto aspect-[16/10] w-full max-w-[900px] max-sm:aspect-[5/7] max-sm:max-w-[330px]">
+            <div
+              className="pointer-events-none absolute inset-x-[7%] bottom-[-4%] h-16 rounded-[999px] bg-[rgba(16,42,67,0.22)] blur-2xl"
+              aria-hidden="true"
+            />
+            <div className="absolute inset-0 rounded-[28px] bg-[var(--color-feature-dark)] shadow-[0_48px_110px_rgba(16,42,67,0.22)]" />
+            <motion.div
+              style={{ opacity: spreadOpacity }}
+              className="absolute inset-0 grid overflow-hidden rounded-[28px] border border-[#EEE5CF] bg-[#FFFDF4] shadow-inner [transform-style:preserve-3d] sm:grid-cols-2"
+            >
+              <BookPage eyebrow="Open left page" title="Your time has value.">
+                Between lectures, work and evenings, your schedule can still create something useful.
+              </BookPage>
+              <BookPage eyebrow="Open right page" title="Earn with what you already know." right>
+                <span className="block">Teach a subject.</span>
+                <span className="block">Share a language.</span>
+                <span className="block">Take photos.</span>
+                <span className="block">Fix a laptop.</span>
+                <span className="block">Help someone move.</span>
+                <span className="mt-4 block text-sm font800 leading-6 text-[var(--color-text-secondary)] sm:text-base">
+                  Choose your services, set your own price and work around university.
+                </span>
+              </BookPage>
+            </motion.div>
             <motion.div
               style={{ rotateY: coverRotate, transformOrigin: "left center" }}
-              className="absolute left-1/2 top-1/2 h-[386px] w-[335px] -translate-y-1/2 overflow-hidden rounded-r-[24px] bg-[var(--color-feature-dark)] p-8 text-white shadow-[0_40px_90px_rgba(16,42,67,0.3)] [backface-visibility:hidden] max-sm:left-1/2 max-sm:h-[440px] max-sm:w-[min(86vw,300px)] max-sm:-translate-x-1/2 max-sm:rounded-[24px]"
+              className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px] bg-[var(--color-feature-dark)] p-8 text-white shadow-[0_40px_90px_rgba(16,42,67,0.32)] [backface-visibility:hidden] [transform-style:preserve-3d] sm:p-12"
               aria-hidden="true"
             >
-              <div className="absolute right-0 top-0 h-full w-2 bg-[var(--color-accent)]" />
-              <span className="grid size-12 place-items-center rounded-[10px] border border-white/18">
+              <div className="pointer-events-none absolute left-0 top-0 h-full w-3 bg-[var(--color-accent)]" aria-hidden="true" />
+              <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.12),transparent_42%)]" aria-hidden="true" />
+              <span className="relative grid size-12 place-items-center rounded-[10px] border border-white/18">
                 <Sparkles size={20} aria-hidden />
               </span>
-              <p className="mt-20 text-4xl font900 leading-tight">Your skills have a next chapter.</p>
-              <p className="mt-8 text-xl font900 text-white/74">Etudo</p>
-              <div className="absolute bottom-8 left-8 size-3 rounded-full bg-[var(--color-accent)]" />
+              <p className="relative mt-20 text-xl font900 text-white/76 max-sm:mt-16">Etudo</p>
+              <h2 className="relative mt-4 max-w-xl text-[clamp(2.2rem,6vw,5rem)] font900 leading-[0.96]">
+                Your skills have a next chapter.
+              </h2>
+              <div className="absolute bottom-8 left-8 size-3 rounded-full bg-[var(--color-accent)] sm:left-12" />
             </motion.div>
             <motion.div
-              style={{ rotateY: pageRotate, transformOrigin: "left center" }}
-              className="absolute left-1/2 top-1/2 h-[344px] w-[312px] -translate-y-1/2 rounded-r-[20px] border-r-4 border-[var(--color-accent)] bg-[#FFFDF4] p-8 shadow-[0_24px_70px_rgba(16,42,67,0.16)] [backface-visibility:hidden] max-sm:hidden"
-              aria-hidden="true"
+              style={{ opacity: actionsOpacity, pointerEvents: actionsPointerEvents }}
+              className="absolute inset-x-5 bottom-5 z-[var(--z-content)] flex flex-col gap-3 sm:left-auto sm:right-8 sm:w-[calc(50%-4rem)] sm:flex-row"
             >
-              <p className="text-sm font900 uppercase tracking-[0.16em] text-[var(--color-brand)]">Opening page</p>
-              <p className="mt-10 text-3xl font900 leading-tight text-[var(--color-brand-dark)]">
-                Your time has value.
-              </p>
-            </motion.div>
-          </motion.div>
-
-          <motion.div style={{ opacity: copyOpacity }} className="relative z-[var(--z-content)] max-w-xl pointer-events-auto">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font900 text-[var(--color-brand-dark)] shadow-[var(--shadow-small)]">
-              <BookOpen size={16} className="text-[var(--color-brand)]" aria-hidden />
-              Student earning
-            </div>
-            <h2 className="mt-5 text-page-heading font900 text-[var(--color-brand-dark)]">
-              Earn with what you already know.
-            </h2>
-            <p className="mt-5 text-lg leading-8 text-[var(--color-text-secondary)]">
-              Choose your services, set your own price, and work around university.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Button href="/offer" className="bg-[var(--color-accent)] text-[var(--color-brand-dark)] hover:bg-[var(--color-yellow-soft)]">
                 Start earning
               </Button>
-              <Button href="/offer?category=tutoring" variant="ghost">Become a tutor</Button>
-            </div>
-          </motion.div>
-        </div>
+              <Button href="/offer?category=tutoring" variant="ghost" className="bg-white/88">
+                Become a tutor
+              </Button>
+            </motion.div>
+          </div>
+        </motion.div>
       </div>
     </section>
   );
 }
 
-function BookPage({ title, body, right = false }: { title: string; body: string; right?: boolean }) {
+function BookPage({
+  eyebrow,
+  title,
+  children,
+  right = false,
+}: {
+  eyebrow: string;
+  title: string;
+  children: ReactNode;
+  right?: boolean;
+}) {
   return (
-    <div className={`relative flex-1 p-8 ${right ? "" : "border-r border-[#EFE4C8]"} max-sm:border-b max-sm:border-r-0`}>
-      <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_1px_1px,var(--color-brand-dark)_1px,transparent_0)] [background-size:16px_16px]" />
-      <div className="relative">
-        <p className="text-sm font900 uppercase tracking-[0.16em] text-[var(--color-brand)]">{title}</p>
-        <p className="mt-8 max-w-xs text-3xl font900 leading-tight text-[var(--color-brand-dark)]">{body}</p>
+    <div className={`relative min-h-0 p-6 sm:p-8 lg:p-10 ${right ? "pb-36 sm:pb-24" : "border-b border-[#EFE4C8] sm:border-b-0 sm:border-r"}`}>
+      <div className="pointer-events-none absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_1px_1px,var(--color-brand-dark)_1px,transparent_0)] [background-size:16px_16px]" aria-hidden="true" />
+      <div className="relative max-w-sm">
+        <p className="text-xs font900 uppercase tracking-[0.16em] text-[var(--color-brand)]">{eyebrow}</p>
+        <h3 className="mt-4 text-[clamp(1.55rem,3vw,2.65rem)] font900 leading-tight text-[var(--color-brand-dark)]">
+          {title}
+        </h3>
+        <p className="mt-5 text-base font800 leading-7 text-[var(--color-brand-dark)] sm:text-lg">
+          {children}
+        </p>
       </div>
       <div className="absolute bottom-6 left-8 right-8 h-px bg-[#EFE4C8]" />
     </div>

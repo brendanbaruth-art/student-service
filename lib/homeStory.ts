@@ -1,10 +1,9 @@
 export const heroSearchExamples = [
-  "Walk my dog",
-  "Help me move",
-  "Explain statistics",
-  "Build my desk",
-  "Take birthday photos",
-  "Fix my laptop",
+  "Dog walking",
+  "Moving help",
+  "Statistics tutor",
+  "Furniture assembly",
+  "Photography",
 ];
 
 export const skillMoments = [
@@ -14,7 +13,7 @@ export const skillMoments = [
     service: "Dog walking",
     area: "17e",
     availability: "Available tonight",
-    price: "€16/hour",
+    price: "€26/hour",
     travel: "12 minutes away",
     university: "Sorbonne Université",
   },
@@ -24,7 +23,7 @@ export const skillMoments = [
     service: "Statistics tutoring",
     area: "16e",
     availability: "Free after 17:00",
-    price: "€32/hour",
+    price: "€22/hour",
     travel: "Online or near Dauphine",
     university: "Université Paris Dauphine - PSL",
   },
@@ -44,7 +43,7 @@ export const skillMoments = [
     service: "Birthday photography",
     area: "5e",
     availability: "Weekend evenings",
-    price: "€45 fixed price",
+    price: "€35 fixed price",
     travel: "Near Saint-Germain",
     university: "Sciences Po Paris",
   },
@@ -122,6 +121,6 @@ export const homepageRequests = [
     title: "Need help with an Excel model",
     area: "Near ESCP",
     timing: "Tomorrow",
-    budget: "€30/hour",
+    budget: "€20/hour",
   },
 ];
