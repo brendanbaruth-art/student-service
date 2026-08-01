@@ -10,7 +10,8 @@
     "build": "next build",
     "start": "next start",
     "test": "pnpm run build",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "audit:browser": "node tests/etudo-browser-audit.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.27.0",

@@ -255,7 +255,7 @@ export function InteractiveParisMap({
             });
           }
           if (!map.loaded()) {
-            setMapError("The map could not load right now.");
+            setMapError("The Paris map could not load right now.");
           }
         });
 
@@ -364,7 +364,7 @@ export function InteractiveParisMap({
           console.warn("Etudo map initialization failed", error);
         }
         if (!cancelled) {
-          setMapError("The map could not load right now.");
+          setMapError("The Paris map could not load right now.");
         }
       }
     }
@@ -561,7 +561,7 @@ export function InteractiveParisMap({
     <section
       className={
         expanded
-          ? "fixed inset-0 z-[1000] grid h-[100dvh] w-[100vw] grid-rows-[auto_1fr] gap-4 overflow-hidden bg-[var(--color-background)] p-3 sm:p-5"
+          ? "fixed inset-0 z-[var(--z-fullscreen)] grid h-[100dvh] w-full grid-rows-[auto_1fr] gap-4 overflow-hidden bg-[var(--color-background)] p-3 sm:p-5"
           : storyMode
             ? "grid gap-4"
           : "grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]"

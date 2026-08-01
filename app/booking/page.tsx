@@ -1,8 +1,8 @@
 ﻿import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2, Clock, MapPin, Star } from "lucide-react";
+import { ActionNoticeButton } from "@/components/ActionNoticeButton";
 import { BookingSummary } from "@/components/BookingSummary";
-import { Button } from "@/components/Button";
 import { PageShell } from "@/components/PageShell";
 import { SelectField, TextAreaField, TextInput } from "@/components/FormField";
 import { findStudent, students } from "@/lib/data";
@@ -114,7 +114,9 @@ export default async function BookingPage({ searchParams }: BookingPageProps) {
                 </div>
               </section>
             </div>
-            <Button type="button" className="mt-6 w-full">Send booking request</Button>
+            <ActionNoticeButton message="Your booking request is ready to send." className="mt-6">
+              Send booking request
+            </ActionNoticeButton>
           </form>
         </div>
 

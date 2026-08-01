@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Bell, Heart, Map, Menu, MessageCircle, Search, UserRound, X } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Logo } from "./Logo";
 import { notifications } from "@/lib/data";
 
@@ -20,9 +20,49 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const mobileMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+        setProfileOpen(false);
+        setNotificationsOpen(false);
+        menuButtonRef.current?.focus();
+      }
+
+      if (event.key === "Tab" && open && mobileMenuRef.current) {
+        const focusable = Array.from(
+          mobileMenuRef.current.querySelectorAll<HTMLElement>(
+            'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        );
+        if (!focusable.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  useEffect(() => {
+    if (open) {
+      mobileMenuRef.current?.querySelector<HTMLElement>("a, button")?.focus();
+    }
+  }, [open]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-white/82 shadow-[0_1px_0_rgba(16,42,67,0.05)] backdrop-blur-xl transition">
+    <header className="sticky top-0 z-[var(--z-navigation)] border-b border-[var(--color-border)] bg-white/82 shadow-[0_1px_0_rgba(16,42,67,0.05)] backdrop-blur-xl transition">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Logo />
         <nav className="hidden items-center gap-1 text-[13px] font-semibold text-[var(--color-text-secondary)] lg:flex" aria-label="Main navigation">
@@ -102,6 +142,7 @@ export function Header() {
           </div>
         </div>
         <button
+          ref={menuButtonRef}
           type="button"
           className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-[var(--color-border)] text-[var(--color-brand-dark)] lg:hidden"
           aria-label={open ? "Close navigation menu" : "Open navigation menu"}
@@ -112,7 +153,10 @@ export function Header() {
         </button>
       </div>
       {open ? (
-        <div className="border-t border-[var(--color-border)] bg-white/94 px-4 py-4 backdrop-blur-xl lg:hidden">
+        <div
+          ref={mobileMenuRef}
+          className="border-t border-[var(--color-border)] bg-white/96 px-4 py-4 shadow-[0_18px_36px_rgba(16,42,67,0.1)] backdrop-blur-xl lg:hidden"
+        >
           <nav className="mx-auto grid max-w-7xl gap-2" aria-label="Mobile navigation">
             <div className="grid grid-cols-3 gap-2">
               <Link href="/search" onClick={() => setOpen(false)} className="grid min-h-12 place-items-center rounded-xl bg-[var(--color-blue-soft)] text-sm font800 text-[var(--color-brand-dark)]">

@@ -1,5 +1,5 @@
 ﻿import { BriefcaseBusiness, Calendar, Handshake, ShieldCheck, Star } from "lucide-react";
-import { Button } from "@/components/Button";
+import { ActionNoticeButton } from "@/components/ActionNoticeButton";
 import { PageShell } from "@/components/PageShell";
 import { SelectField, TextAreaField, TextInput } from "@/components/FormField";
 import { Toast } from "@/components/Toast";
@@ -23,7 +23,7 @@ export default function OfferPage() {
     <PageShell>
       <section className="bg-white">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
-          <div>
+          <div className="min-w-0">
             <Toast message="Helper applications are open" />
             <p className="mt-8 text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">
               Offer a service
@@ -44,7 +44,7 @@ export default function OfferPage() {
             </div>
           </div>
 
-          <form className="rounded-lg border border-[var(--color-border)] bg-white p-5 shadow-[0_18px_35px_rgba(21,34,56,0.06)] sm:p-6">
+          <form className="min-w-0 rounded-lg border border-[var(--color-border)] bg-white p-5 shadow-[0_18px_35px_rgba(21,34,56,0.06)] sm:p-6">
             <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">Create your service listing</h2>
             <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
               Add one service to start. You can add more categories from your profile later.
@@ -88,8 +88,12 @@ export default function OfferPage() {
               </div>
             </div>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <Button type="button" variant="secondary">Save draft</Button>
-              <Button type="button">Preview listing</Button>
+              <ActionNoticeButton variant="secondary" message="Your listing draft is ready to continue." className="sm:w-auto">
+                Save draft
+              </ActionNoticeButton>
+              <ActionNoticeButton message="Preview updated with your current listing details." className="sm:w-auto">
+                Preview listing
+              </ActionNoticeButton>
             </div>
           </form>
         </div>

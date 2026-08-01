@@ -25,7 +25,14 @@
   --shadow-large: 0 30px 80px rgba(16, 42, 67, 0.18);
   --duration-fast: 180ms;
   --duration-standard: 260ms;
-  --z-nav: 50;
+  --z-base: 0;
+  --z-content: 10;
+  --z-sticky: 30;
+  --z-navigation: 50;
+  --z-dropdown: 70;
+  --z-modal: 90;
+  --z-fullscreen: 100;
+  --z-toast: 110;
   --z-map-controls: 30;
   --container-wide: 80rem;
   --background: var(--color-background);
@@ -78,15 +85,17 @@ button {
 }
 
 .text-hero {
-  font-size: clamp(3rem, 7vw, 6.5rem);
+  font-size: clamp(2.6rem, 7vw, 6.5rem);
   line-height: 0.98;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 .text-page-heading {
   font-size: clamp(2.2rem, 5vw, 4.5rem);
   line-height: 1;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
 }
 
 .text-section-heading {
@@ -173,11 +182,26 @@ textarea {
 @media (min-width: 1024px) {
   .etudo-map-frame {
     height: min(760px, calc(100dvh - 72px));
-    min-height: 680px;
+    min-height: 640px;
   }
 }
 
 @media (max-width: 767px) {
+  .text-hero {
+    font-size: clamp(2.25rem, 14vw, 3.7rem);
+    line-height: 0.98;
+  }
+
+  .text-page-heading {
+    font-size: clamp(2rem, 10vw, 3.2rem);
+    line-height: 1.03;
+  }
+
+  .text-section-heading {
+    font-size: clamp(1.75rem, 8vw, 2.55rem);
+    line-height: 1.08;
+  }
+
   .etudo-story-map-frame {
     height: 560px;
     min-height: 560px;

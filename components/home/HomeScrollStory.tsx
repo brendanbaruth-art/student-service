@@ -39,7 +39,6 @@ export function HomeScrollStory() {
       <PurposeSearchScene />
       <StudentSkillsReveal />
       <ParisMotionScene />
-      <MapToBookTransition />
       <BookEarningScene />
       <PulseAndRequests />
       <TrustFinale />
@@ -85,9 +84,9 @@ function CinematicVideoHero() {
   }, [shouldShowVideo]);
 
   return (
-    <section ref={sectionRef} className="relative h-[190dvh] bg-[var(--color-feature-dark)] text-white">
-      <div className="sticky top-0 min-h-[calc(100dvh-72px)] overflow-hidden">
-        <motion.div style={{ scale: videoScale }} className="absolute inset-0">
+    <section ref={sectionRef} className="relative h-[125dvh] bg-[var(--color-feature-dark)] text-white max-sm:h-[118dvh]">
+      <div className="sticky top-0 min-h-[100dvh] overflow-hidden">
+        <motion.div style={{ scale: videoScale }} className="pointer-events-none absolute inset-0">
           <Image
             src={heroPoster}
             alt="Paris street scene used as the Etudo video fallback poster"
@@ -114,17 +113,17 @@ function CinematicVideoHero() {
             </video>
           ) : null}
         </motion.div>
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,42,67,0.9),rgba(16,42,67,0.66)_48%,rgba(16,42,67,0.28))]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(16,42,67,0.9),rgba(16,42,67,0.66)_48%,rgba(16,42,67,0.28))]" />
         <motion.div
           style={{ opacity: lightWash }}
-          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(234,246,255,0.08),rgba(234,246,255,0.88))]"
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(234,246,255,0.08),rgba(234,246,255,0.88))]"
         />
-        <div className="relative mx-auto flex min-h-[calc(100dvh-72px)] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
+        <div className="relative z-[var(--z-content)] mx-auto flex min-h-[100dvh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
           <motion.div style={{ opacity: headlineOpacity }} className="max-w-4xl">
             <p className="text-sm font900 uppercase tracking-[0.2em] text-[var(--color-yellow-soft)]">
               Student life, moving together.
             </p>
-            <h1 className="mt-5 max-w-4xl text-5xl font900 leading-[0.98] sm:text-7xl lg:text-8xl">
+            <h1 className="mt-5 max-w-[13ch] text-hero font900">
               A city of students.
               <span className="block">A network of skills.</span>
             </h1>
@@ -148,7 +147,7 @@ function CinematicVideoHero() {
                 ))}
               </motion.div>
             </motion.div>
-            <div className="mt-24 flex flex-col gap-3 sm:flex-row md:mt-20">
+            <div className="mt-12 flex flex-col gap-3 sm:flex-row md:mt-16">
               <Button href="/browse" className="bg-[var(--color-accent)] text-[var(--color-brand-dark)] hover:bg-[var(--color-yellow-soft)]">
                 Find help
               </Button>
@@ -212,8 +211,8 @@ function StudentSkillsReveal() {
   );
 
   return (
-    <section ref={sectionRef} className="relative h-[210dvh] bg-[var(--color-surface-soft)]">
-      <div className="sticky top-0 flex min-h-[100dvh] items-center overflow-hidden">
+    <section ref={sectionRef} className="relative bg-[var(--color-surface-soft)]">
+      <div className="flex min-h-[100dvh] items-center overflow-hidden">
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8">
           <div className="flex flex-col justify-center">
             <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">Student skills</p>
@@ -227,7 +226,7 @@ function StudentSkillsReveal() {
               <Button href="/browse">Explore students</Button>
             </div>
           </div>
-          <div className="relative min-h-[680px]">
+          <div className="relative min-h-[680px] max-md:grid max-md:min-h-0 max-md:gap-4">
             {skillMoments.map((moment, index) => {
               const student = storyStudents[index];
               return (
@@ -273,7 +272,7 @@ function SkillMomentCard({
   return (
     <motion.article
       style={{ y, opacity }}
-      className={`absolute w-[min(100%,390px)] rounded-[var(--radius-large)] border border-white/80 bg-white p-4 shadow-[var(--shadow-large)] ${positions[index]}`}
+      className={`absolute w-[min(100%,390px)] rounded-[var(--radius-large)] border border-white/80 bg-white p-4 shadow-[var(--shadow-large)] max-md:static max-md:w-full ${positions[index]}`}
     >
       <div className="flex gap-4">
         <div className="relative size-24 shrink-0 overflow-hidden rounded-[var(--radius-medium)] bg-[var(--color-blue-soft)]">
@@ -318,8 +317,8 @@ function ParisMotionScene() {
   const storyStudents = students.slice(0, 12);
 
   return (
-    <section ref={sectionRef} className="relative h-[310dvh] bg-[var(--color-background)]">
-      <div className="sticky top-0 flex min-h-[100dvh] items-center overflow-hidden px-4 py-16 sm:px-6 lg:px-8">
+    <section ref={sectionRef} className="relative bg-[var(--color-background)]">
+      <div className="flex min-h-[100dvh] items-center overflow-hidden px-4 py-16 sm:px-6 lg:px-8">
         <motion.div
           style={{ opacity: lineOpacity, scaleX: lineScale }}
           className="pointer-events-none absolute inset-x-[12%] bottom-0 h-px origin-center bg-[var(--color-brand-dark)]/20"
@@ -407,20 +406,6 @@ function DeferredStoryMap({
   );
 }
 
-function MapToBookTransition() {
-  return (
-    <section className="relative overflow-hidden bg-[linear-gradient(180deg,var(--color-background),var(--color-surface-soft))] px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-5xl items-center justify-center">
-        <div className="relative h-28 w-full max-w-3xl">
-          <div className="absolute left-1/2 top-1/2 h-px w-[78%] -translate-x-1/2 bg-[var(--color-brand-dark)]/18" />
-          <div className="absolute left-1/2 top-1/2 h-px w-[42%] -translate-x-1/2 rotate-6 bg-[var(--color-brand-dark)]/16" />
-          <div className="absolute left-1/2 top-1/2 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[var(--color-accent)] shadow-[0_0_0_10px_rgba(255,216,77,0.18)]" />
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function BookEarningScene() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const reduceMotion = useReducedMotion();
@@ -428,21 +413,22 @@ function BookEarningScene() {
   const coverRotate = useTransform(scrollYProgress, [0.2, 0.45], reduceMotion ? [-138, -138] : [0, -138]);
   const pageRotate = useTransform(scrollYProgress, [0.45, 0.65], reduceMotion ? [-116, -116] : [0, -116]);
   const bookScale = useTransform(scrollYProgress, [0, 0.2, 1], reduceMotion ? [1, 1, 1] : [0.9, 1, 1.02]);
-  const copyOpacity = useTransform(scrollYProgress, [0.7, 0.86], [0, 1]);
+  const copyOpacity = useTransform(scrollYProgress, [0.42, 0.6], [0.28, 1]);
 
   return (
-    <section ref={sectionRef} className="relative h-[360dvh] bg-[var(--color-surface-soft)] max-sm:h-[260dvh]">
-      <div className="sticky top-0 grid min-h-[100dvh] place-items-center overflow-hidden px-4 py-20">
-        <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <motion.div style={{ scale: bookScale }} className="relative mx-auto h-[470px] w-full max-w-[790px] [perspective:1800px] max-sm:h-[540px]">
-            <div className="absolute left-1/2 top-1/2 h-[386px] w-[670px] -translate-x-1/2 -translate-y-1/2 rounded-[30px] bg-white shadow-[0_50px_120px_rgba(16,42,67,0.2)] max-sm:h-[440px] max-sm:w-[300px]" />
-            <div className="absolute left-1/2 top-1/2 flex h-[360px] w-[640px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[24px] bg-[#FFFDF4] shadow-inner [transform-style:preserve-3d] max-sm:h-[420px] max-sm:w-[280px] max-sm:flex-col">
+    <section ref={sectionRef} className="relative bg-[var(--color-surface-soft)]">
+      <div className="grid min-h-[100dvh] place-items-center overflow-hidden px-4 py-20 sm:px-6 lg:px-8">
+        <div className="mx-auto grid w-full max-w-6xl gap-10 xl:grid-cols-[1.1fr_0.9fr] xl:items-center">
+          <motion.div style={{ scale: bookScale }} className="relative mx-auto h-[470px] w-full max-w-[790px] [perspective:1800px] max-sm:h-auto max-sm:min-h-[520px]">
+            <div className="absolute left-1/2 top-1/2 h-[386px] w-[670px] -translate-x-1/2 -translate-y-1/2 rounded-[30px] bg-white shadow-[0_50px_120px_rgba(16,42,67,0.2)] max-sm:h-[440px] max-sm:w-[min(86vw,300px)]" />
+            <div className="absolute left-1/2 top-1/2 flex h-[360px] w-[640px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[24px] bg-[#FFFDF4] shadow-inner [transform-style:preserve-3d] max-sm:h-[420px] max-sm:w-[min(82vw,280px)] max-sm:flex-col">
               <BookPage title="Your time has value." body="Between lectures, work, and evenings, your schedule can still create something useful." />
               <BookPage title="Your skills can help someone." body="Teach a subject. Share a language. Take photos. Fix a laptop. Help someone move." right />
             </div>
             <motion.div
               style={{ rotateY: coverRotate, transformOrigin: "left center" }}
-              className="absolute left-1/2 top-1/2 h-[386px] w-[335px] -translate-y-1/2 overflow-hidden rounded-r-[24px] bg-[var(--color-feature-dark)] p-8 text-white shadow-[0_40px_90px_rgba(16,42,67,0.3)] [backface-visibility:hidden] max-sm:left-[calc(50%-150px)] max-sm:h-[440px] max-sm:w-[300px] max-sm:rounded-[24px]"
+              className="absolute left-1/2 top-1/2 h-[386px] w-[335px] -translate-y-1/2 overflow-hidden rounded-r-[24px] bg-[var(--color-feature-dark)] p-8 text-white shadow-[0_40px_90px_rgba(16,42,67,0.3)] [backface-visibility:hidden] max-sm:left-1/2 max-sm:h-[440px] max-sm:w-[min(86vw,300px)] max-sm:-translate-x-1/2 max-sm:rounded-[24px]"
+              aria-hidden="true"
             >
               <div className="absolute right-0 top-0 h-full w-2 bg-[var(--color-accent)]" />
               <span className="grid size-12 place-items-center rounded-[10px] border border-white/18">
@@ -454,7 +440,8 @@ function BookEarningScene() {
             </motion.div>
             <motion.div
               style={{ rotateY: pageRotate, transformOrigin: "left center" }}
-              className="absolute left-1/2 top-1/2 h-[344px] w-[312px] -translate-y-1/2 rounded-r-[20px] border-r-4 border-[var(--color-accent)] bg-[#FFFDF4] p-8 shadow-[0_24px_70px_rgba(16,42,67,0.16)] [backface-visibility:hidden] max-sm:h-[400px] max-sm:w-[264px]"
+              className="absolute left-1/2 top-1/2 h-[344px] w-[312px] -translate-y-1/2 rounded-r-[20px] border-r-4 border-[var(--color-accent)] bg-[#FFFDF4] p-8 shadow-[0_24px_70px_rgba(16,42,67,0.16)] [backface-visibility:hidden] max-sm:hidden"
+              aria-hidden="true"
             >
               <p className="text-sm font900 uppercase tracking-[0.16em] text-[var(--color-brand)]">Opening page</p>
               <p className="mt-10 text-3xl font900 leading-tight text-[var(--color-brand-dark)]">
@@ -463,7 +450,7 @@ function BookEarningScene() {
             </motion.div>
           </motion.div>
 
-          <motion.div style={{ opacity: copyOpacity }} className="relative z-10 max-w-xl">
+          <motion.div style={{ opacity: copyOpacity }} className="relative z-[var(--z-content)] max-w-xl pointer-events-auto">
             <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font900 text-[var(--color-brand-dark)] shadow-[var(--shadow-small)]">
               <BookOpen size={16} className="text-[var(--color-brand)]" aria-hidden />
               Student earning

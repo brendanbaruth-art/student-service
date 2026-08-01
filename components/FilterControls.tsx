@@ -1,4 +1,7 @@
-﻿import { SlidersHorizontal } from "lucide-react";
+"use client";
+
+import { SlidersHorizontal } from "lucide-react";
+import { useState } from "react";
 import {
   availabilityOptions,
   categories,
@@ -13,6 +16,14 @@ type FilterControlsProps = {
 };
 
 export function FilterControls({ category = "" }: FilterControlsProps) {
+  const [activeChips, setActiveChips] = useState<string[]>([]);
+
+  function toggleChip(chip: string) {
+    setActiveChips((current) =>
+      current.includes(chip) ? current.filter((item) => item !== chip) : [...current, chip],
+    );
+  }
+
   return (
     <aside className="rounded-lg border border-[var(--color-border)] bg-white p-4 lg:sticky lg:top-24 lg:h-fit">
       <div className="flex items-center justify-between gap-3">
@@ -24,7 +35,13 @@ export function FilterControls({ category = "" }: FilterControlsProps) {
           <button
             key={chip}
             type="button"
-            className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-soft)] px-3 py-1.5 text-xs font900 text-[var(--color-text-secondary)] transition hover:border-[var(--color-brand)] hover:bg-white hover:text-[var(--color-brand-dark)]"
+            onClick={() => toggleChip(chip)}
+            aria-pressed={activeChips.includes(chip)}
+            className={`rounded-full border px-3 py-1.5 text-xs font900 transition ${
+              activeChips.includes(chip)
+                ? "border-[var(--color-brand)] bg-[var(--color-blue-soft)] text-[var(--color-brand-dark)]"
+                : "border-[var(--color-border)] bg-[var(--color-surface-soft)] text-[var(--color-text-secondary)] hover:border-[var(--color-brand)] hover:bg-white hover:text-[var(--color-brand-dark)]"
+            }`}
           >
             {chip}
           </button>

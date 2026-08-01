@@ -4,13 +4,13 @@ import type { AnchorHTMLAttributes, ButtonHTMLAttributes, ReactNode } from "reac
 type Variant = "primary" | "secondary" | "ghost";
 
 const styles: Record<Variant, string> = {
-  primary: "bg-[var(--color-feature-dark)] text-white hover:bg-[#173A5E]",
+  primary: "bg-[var(--color-feature-dark)] text-white hover:bg-[var(--color-brand-dark)]",
   secondary: "border border-[var(--color-border)] bg-white text-[var(--color-brand-dark)] hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]",
   ghost: "bg-transparent text-[var(--color-brand-dark)] hover:bg-[var(--color-surface-soft)]",
 };
 
 const base =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-5 text-sm font800 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-brand)]";
+  "inline-flex min-h-11 items-center justify-center gap-2 rounded-md px-5 text-sm font800 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-brand)] disabled:cursor-not-allowed disabled:opacity-45";
 
 type LinkButtonProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   href: string;

@@ -1,5 +1,5 @@
 ﻿import { BadgeCheck, FileCheck2, LockKeyhole, MailCheck, ShieldCheck } from "lucide-react";
-import { Button } from "@/components/Button";
+import { ActionNoticeButton } from "@/components/ActionNoticeButton";
 import { PageShell } from "@/components/PageShell";
 import { TextInput } from "@/components/FormField";
 
@@ -26,7 +26,7 @@ export default function VerificationPage() {
             A safer marketplace starts with student affiliation.
           </h1>
           <p className="mt-5 text-lg leading-8 text-[var(--color-text-secondary)]">
-            Etudo? verification process is designed to help students book and offer services
+            Etudo&apos;s verification process is designed to help students book and offer services
             with greater confidence.
           </p>
         </div>
@@ -64,7 +64,9 @@ export default function VerificationPage() {
                 <input id="student-document" type="file" className="sr-only" />
               </label>
             </div>
-            <Button type="button" className="mt-6 w-full">Submit for review</Button>
+            <ActionNoticeButton message="Your verification details are ready for review." className="mt-6">
+              Submit for review
+            </ActionNoticeButton>
           </form>
 
           <div className="rounded-lg bg-[var(--color-brand-dark)] p-6 text-white">
