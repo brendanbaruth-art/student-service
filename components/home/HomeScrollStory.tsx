@@ -26,14 +26,14 @@ const mapStudents = students.slice(0, 5);
 
 export function HomeScrollStory() {
   return (
-    <main className="bg-[var(--color-background)] text-[var(--color-text)]">
+    <div className="bg-[var(--color-background)] text-[var(--color-text)]">
       <CinematicHero />
       <StudentDiscovery />
       <BookSequence />
       <MapStory />
       <RequestsScene />
       <TrustFinale />
-    </main>
+    </div>
   );
 }
 

@@ -1,5 +1,10 @@
 import { HomeScrollStory } from "@/components/home/HomeScrollStory";
+import { PageShell } from "@/components/PageShell";
 
 export default function Home() {
-  return <HomeScrollStory />;
+  return (
+    <PageShell>
+      <HomeScrollStory />
+    </PageShell>
+  );
 }

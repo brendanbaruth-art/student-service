@@ -4,17 +4,14 @@ import dynamic from "next/dynamic";
 import { List, Map } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Student } from "@/lib/data";
+import { MapLoadingState } from "./map/MapLoadingState";
 import { StudentCard } from "./StudentCard";
 
 const ParisMapPreview = dynamic(
-  () => import("./ParisMapPreview").then((module) => module.ParisMapPreview),
+  () => import("./map/MapClient").then((module) => module.MapClient),
   {
     ssr: false,
-    loading: () => (
-      <div className="grid min-h-[520px] place-items-center rounded-[var(--radius-medium)] border border-[var(--color-border)] bg-white text-sm font800 text-[var(--color-text-secondary)]">
-        Loading the Paris map
-      </div>
-    ),
+    loading: () => <MapLoadingState />,
   },
 );
 
