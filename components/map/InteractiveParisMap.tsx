@@ -534,7 +534,7 @@ export function InteractiveParisMap({
           ) : null}
 
           <div className={expanded ? "etudo-map-frame-full" : "etudo-map-frame"}>
-            <div ref={containerRef} className="absolute inset-0" />
+            <div ref={containerRef} className="h-full w-full" />
             {mapError ? (
               <div className="absolute inset-x-4 top-4 rounded-[var(--radius-small)] border border-[var(--color-border)] bg-white/92 p-4 text-sm font800 text-[var(--color-text-secondary)] shadow-[var(--shadow-small)] backdrop-blur">
                 <p className="font900 text-[var(--color-brand-dark)]">{mapError}</p>
