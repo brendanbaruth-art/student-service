@@ -4,16 +4,14 @@ import Image from "next/image";
 import { Expand, LocateFixed, MapPin, Minimize2, RotateCcw, X } from "lucide-react";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   arrondissements,
   countStudentsByArrondissement,
-  getPrimaryService,
   studentServesArrondissement,
   type Student,
 } from "@/lib/data";
 import { Button } from "@/components/Button";
-import { FavoriteButton } from "@/components/FavoriteButton";
-import { VerificationBadge } from "@/components/VerificationBadge";
 
 export type GuidedMapFocus = {
   areaNumber: number;
@@ -68,21 +66,9 @@ const PARIS_BOUNDS = [
 const AREA_SOURCE_ID = "paris-arrondissements";
 const AREA_FILL_ID = "paris-arrondissement-fill";
 const AREA_LINE_ID = "paris-arrondissement-line";
+const AREA_LABEL_ID = "paris-arrondissement-label";
 
-const PARIS_MAP_STYLE = {
-  version: 8,
-  glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-  sources: {},
-  layers: [
-    {
-      id: "etudo-paris-background",
-      type: "background",
-      paint: {
-        "background-color": "#EAF6FF",
-      },
-    },
-  ],
-};
+const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/bright";
 
 export function InteractiveParisMap({
   students,
@@ -91,7 +77,6 @@ export function InteractiveParisMap({
   onAreasChange,
   variant = "marketplace",
   guidedFocus,
-  searchQuery = "",
   selectedStudentId,
   onStudentSelect,
   onMapStateChange,
@@ -100,17 +85,22 @@ export function InteractiveParisMap({
   const mapRef = useRef<MapLibreMap | null>(null);
   const mapLibRef = useRef<typeof import("maplibre-gl") | null>(null);
   const markersRef = useRef<MarkerHandle[]>([]);
-  const districtLabelsRef = useRef<MarkerHandle[]>([]);
+  const onMapStateChangeRef = useRef(onMapStateChange);
   const selectedAreasRef = useRef<number[]>(initialAreas);
   const [geoJson, setGeoJson] = useState<ParisFeatureCollection | null>(null);
   const [selectedAreas, setSelectedAreas] = useState<number[]>(initialAreas);
-  const [internalActiveStudentId, setInternalActiveStudentId] = useState(students[0]?.id || "");
+  const [internalActiveStudentId, setInternalActiveStudentId] = useState(selectedStudentId || students[0]?.id || "");
   const [locationNote, setLocationNote] = useState("");
   const [expanded, setExpanded] = useState(false);
   const [mapError, setMapError] = useState("");
   const [mapReady, setMapReady] = useState(false);
   const [manualInteraction, setManualInteraction] = useState(variant !== "story");
   const storyMode = variant === "story";
+  const activeStudentId = selectedStudentId || internalActiveStudentId;
+
+  useEffect(() => {
+    onMapStateChangeRef.current = onMapStateChange;
+  }, [onMapStateChange]);
 
   const counts = useMemo(() => countStudentsByArrondissement(students), [students]);
   const visibleStudents = useMemo(
@@ -122,7 +112,6 @@ export function InteractiveParisMap({
         : students,
     [selectedAreas, students],
   );
-  const activeStudentId = selectedStudentId || internalActiveStudentId;
   const activeStudent =
     visibleStudents.find((student) => student.id === activeStudentId) || visibleStudents[0];
 
@@ -209,13 +198,14 @@ export function InteractiveParisMap({
     }
   }, [fitToParis, geoJson]);
 
-  const flyToStudent = useCallback((student: Student, duration = 600) => {
-    if (!mapRef.current || !student.approximateLongitude || !student.approximateLatitude) {
+  const flyToStudent = useCallback((student: Student, duration = 650) => {
+    const map = mapRef.current;
+    if (!map || !student.approximateLatitude || !student.approximateLongitude) {
       return;
     }
-    mapRef.current.flyTo({
+    map.flyTo({
       center: [student.approximateLongitude, student.approximateLatitude],
-      zoom: Math.max(mapRef.current.getZoom(), 13),
+      zoom: Math.max(map.getZoom(), 13),
       duration,
     });
   }, []);
@@ -239,17 +229,6 @@ export function InteractiveParisMap({
     );
   }
 
-  const handleStudentSelect = useCallback(
-    (studentId: string) => {
-      const student = visibleStudents.find((item) => item.id === studentId);
-      selectStudent(studentId);
-      if (student) {
-        flyToStudent(student);
-      }
-    },
-    [flyToStudent, selectStudent, visibleStudents],
-  );
-
   useEffect(() => {
     if (!containerRef.current || mapRef.current) {
       return;
@@ -272,39 +251,21 @@ export function InteractiveParisMap({
 
         const map = new maplibregl.Map({
           container: containerRef.current,
-          style: PARIS_MAP_STYLE as never,
+          style: MAP_STYLE_URL,
           center: [2.3488, 48.8566],
           zoom: 11.25,
           minZoom: 10.3,
           maxZoom: 15,
-          interactive: true,
           attributionControl: false,
         });
 
         mapRef.current = map;
-        enableMapGestures(map);
         scheduleResize();
         map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "top-right");
         map.addControl(new maplibregl.FullscreenControl(), "top-right");
         map.addControl(new maplibregl.GeolocateControl({ trackUserLocation: false }), "top-right");
         map.addControl(new maplibregl.ScaleControl({ maxWidth: 120, unit: "metric" }), "bottom-right");
         map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-left");
-        map.getCanvas().style.cursor = "grab";
-        const markManual = () => enableManualInteraction();
-        map.on("dragstart", () => {
-          markManual();
-          map.getCanvas().style.cursor = "grabbing";
-        });
-        map.on("dragend", () => {
-          map.getCanvas().style.cursor = "grab";
-        });
-        map.on("zoomstart", markManual);
-        map.on("boxzoomstart", markManual);
-        map.on("rotatestart", markManual);
-        map.on("pitchstart", markManual);
-        map.on("dblclick", markManual);
-        map.getCanvas().addEventListener("wheel", markManual, { passive: true });
-        map.getCanvas().addEventListener("touchstart", markManual, { passive: true });
 
         map.on("error", (event) => {
           if (process.env.NODE_ENV !== "production") {
@@ -317,15 +278,24 @@ export function InteractiveParisMap({
               error: event.error?.message,
               sourceId: diagnosticEvent.sourceId,
               tileId: diagnosticEvent.tile?.tileID?.canonical,
-              style: "local Etudo Paris style",
+              style: MAP_STYLE_URL,
               dimensions: dimensions
                 ? { width: dimensions.width, height: dimensions.height }
                 : null,
             });
           }
           if (!map.loaded()) {
-            setMapError("The Paris map could not load right now.");
+            setMapError("The map could not load right now.");
           }
+        });
+
+        map.on("moveend", () => {
+          const center = map.getCenter();
+          onMapStateChangeRef.current?.({ center: [center.lng, center.lat], zoom: map.getZoom() });
+        });
+        map.on("zoomend", () => {
+          const center = map.getCenter();
+          onMapStateChangeRef.current?.({ center: [center.lng, center.lat], zoom: map.getZoom() });
         });
 
         map.once("load", async () => {
@@ -391,6 +361,23 @@ export function InteractiveParisMap({
             },
           });
 
+          map.addLayer({
+            id: AREA_LABEL_ID,
+            type: "symbol",
+            source: AREA_SOURCE_ID,
+            layout: {
+              "text-field": ["concat", ["get", "label"], "\n", ["to-string", ["get", "studentCount"]]],
+              "text-size": 12,
+              "text-font": ["Noto Sans Bold"],
+              "text-allow-overlap": false,
+            },
+            paint: {
+              "text-color": "#102A43",
+              "text-halo-color": "#FFFFFF",
+              "text-halo-width": 1.2,
+            },
+          });
+
           map.on("click", AREA_FILL_ID, (event) => {
             enableManualInteraction();
             const feature = event.features?.[0] as ParisFeature | undefined;
@@ -404,7 +391,7 @@ export function InteractiveParisMap({
             map.getCanvas().style.cursor = "pointer";
           });
           map.on("mouseleave", AREA_FILL_ID, () => {
-            map.getCanvas().style.cursor = "grab";
+            map.getCanvas().style.cursor = "";
           });
 
           fitToParis();
@@ -416,7 +403,7 @@ export function InteractiveParisMap({
           console.warn("Etudo map initialization failed", error);
         }
         if (!cancelled) {
-          setMapError("The Paris map could not load right now.");
+          setMapError("The map could not load right now.");
         }
       }
     }
@@ -427,8 +414,6 @@ export function InteractiveParisMap({
       cancelled = true;
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
-      districtLabelsRef.current.forEach((marker) => marker.remove());
-      districtLabelsRef.current = [];
       mapRef.current?.remove();
       mapRef.current = null;
       setMapReady(false);
@@ -463,16 +448,6 @@ export function InteractiveParisMap({
       | undefined;
     source?.setData(enrichGeoJson(geoJson));
   }, [enrichGeoJson, geoJson, selectedAreas]);
-
-  useEffect(() => {
-    if (!selectedStudentId) {
-      return;
-    }
-    const student = students.find((item) => item.id === selectedStudentId);
-    if (student) {
-      flyToStudent(student, 650);
-    }
-  }, [flyToStudent, selectedStudentId, students]);
 
   useEffect(() => {
     if (!mapReady || !guidedFocus || manualInteraction || !mapRef.current) {
@@ -514,37 +489,6 @@ export function InteractiveParisMap({
       return;
     }
 
-    districtLabelsRef.current.forEach((marker) => marker.remove());
-    districtLabelsRef.current = [];
-
-    arrondissements.forEach((area) => {
-      const count = counts[area.number] || 0;
-      const selected = selectedAreasRef.current.includes(area.number);
-      const element = document.createElement("button");
-      element.type = "button";
-      element.className = selected
-        ? "rounded-full border border-white bg-[var(--color-brand)] px-2.5 py-1 text-[11px] font900 leading-tight text-white shadow-[0_10px_24px_rgba(16,42,67,0.2)]"
-        : "rounded-full border border-white/90 bg-white/88 px-2.5 py-1 text-[11px] font900 leading-tight text-[var(--color-brand-dark)] shadow-[0_10px_24px_rgba(16,42,67,0.14)] backdrop-blur";
-      element.innerHTML = `<span>${area.label}</span><span class="ml-1 text-[10px] opacity-75">${count}</span>`;
-      element.setAttribute("aria-label", `${area.label}, ${count} matching students`);
-      element.addEventListener("click", () => {
-        enableManualInteraction();
-        toggleArea(area.number);
-      });
-      const marker = new maplibregl.Marker({ element, anchor: "center" })
-        .setLngLat([area.center.longitude, area.center.latitude])
-        .addTo(map);
-      districtLabelsRef.current.push(marker);
-    });
-  }, [counts, enableManualInteraction, mapReady, selectedAreas, toggleArea]);
-
-  useEffect(() => {
-    const maplibregl = mapLibRef.current;
-    const map = mapRef.current;
-    if (!mapReady || !maplibregl || !map) {
-      return;
-    }
-
     markersRef.current.forEach((marker) => marker.remove());
     markersRef.current = [];
 
@@ -571,7 +515,6 @@ export function InteractiveParisMap({
           ? "grid min-h-11 min-w-11 place-items-center rounded-full border border-white bg-[var(--color-accent)] px-3 text-sm font900 text-[var(--color-brand-dark)] shadow-[0_18px_34px_rgba(16,42,67,0.28)] transition hover:scale-105"
           : "grid min-h-11 min-w-11 place-items-center rounded-full border border-white bg-[var(--color-feature-dark)] px-3 text-sm font900 text-white shadow-[0_18px_34px_rgba(16,42,67,0.28)] transition hover:scale-105";
         markerElement.textContent = `${group.length}`;
-        markerElement.style.zIndex = "4";
         markerElement.setAttribute("aria-label", `${group.length} students in ${area.name}`);
         markerElement.addEventListener("click", () => {
           enableManualInteraction();
@@ -594,7 +537,6 @@ export function InteractiveParisMap({
             ? "relative grid size-12 place-items-center overflow-hidden rounded-full border-4 border-[var(--color-accent)] bg-white shadow-[0_14px_28px_rgba(16,42,67,0.24)] transition hover:scale-105"
             : "relative grid size-12 place-items-center overflow-hidden rounded-full border-2 border-white bg-white shadow-[0_14px_28px_rgba(16,42,67,0.24)] transition hover:scale-105";
         markerElement.setAttribute("aria-label", `Preview ${student.displayName}`);
-        markerElement.style.zIndex = activeStudentId === student.id ? "6" : "5";
 
         const img = document.createElement("img");
         img.src = student.photo;
@@ -626,27 +568,14 @@ export function InteractiveParisMap({
   }, [activeStudentId, enableManualInteraction, mapReady, selectStudent, updateSelectedAreas, visibleStudents]);
 
   useEffect(() => {
-    const currentMap = mapRef.current;
-    if (!currentMap || !onMapStateChange) {
+    if (!selectedStudentId) {
       return;
     }
-    const activeMap: MapLibreMap = currentMap;
-
-    function emitState() {
-      const center = activeMap.getCenter();
-      onMapStateChange?.({
-        center: [center.lng, center.lat],
-        zoom: activeMap.getZoom(),
-      });
+    const student = students.find((item) => item.id === selectedStudentId);
+    if (student) {
+      flyToStudent(student);
     }
-
-    activeMap.on("moveend", emitState);
-    activeMap.on("zoomend", emitState);
-    return () => {
-      activeMap.off("moveend", emitState);
-      activeMap.off("zoomend", emitState);
-    };
-  }, [mapReady, onMapStateChange]);
+  }, [flyToStudent, selectedStudentId, students]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -682,7 +611,7 @@ export function InteractiveParisMap({
     <section
       className={
         expanded
-          ? "fixed inset-0 z-[var(--z-fullscreen)] grid h-[100dvh] w-full grid-rows-[auto_1fr] gap-4 overflow-hidden bg-[var(--color-background)] p-3 sm:p-5"
+          ? "fixed inset-0 z-[1000] grid h-[100dvh] w-[100vw] grid-rows-[auto_1fr] gap-4 overflow-hidden bg-[var(--color-background)] p-3 sm:p-5"
           : storyMode
             ? "grid gap-4"
           : "grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]"
@@ -761,35 +690,23 @@ export function InteractiveParisMap({
           <div className={expanded ? "etudo-map-frame-full" : storyMode ? "etudo-story-map-frame" : "etudo-map-frame"}>
             <div ref={containerRef} className="h-full w-full" />
             {storyMode && !expanded ? (
-              <>
-                {activeStudent ? (
-                  <div className="pointer-events-none absolute left-3 top-3 z-[var(--z-map-controls)] max-w-[280px] max-sm:bottom-3 max-sm:top-auto">
-                  <div className="pointer-events-auto rounded-[var(--radius-medium)] border border-white/70 bg-white/92 p-3 shadow-[var(--shadow-medium)] backdrop-blur-xl">
-                      <div className="flex gap-3">
-                        <div className="relative size-14 shrink-0 overflow-hidden rounded-[var(--radius-small)] bg-[var(--color-surface-soft)]">
-                          <Image src={activeStudent.photo} alt={`Profile photograph of ${activeStudent.displayName}`} fill sizes="56px" className="object-cover" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font900 text-[var(--color-brand-dark)]">{activeStudent.displayName}</p>
-                          <p className="truncate text-xs font800 text-[var(--color-text-secondary)]">{activeStudent.university}</p>
-                          <p className="mt-1 text-xs font900 text-[var(--color-brand-dark)]">
-                            {activeStudent.rating.toFixed(1)} <span aria-hidden>&middot;</span> {activeStudent.startingPrice}
-                          </p>
-                        </div>
-                      </div>
-                      <Button href={`/students/${activeStudent.id}`} className="mt-3 w-full px-3 text-xs">
-                        View profile
-                      </Button>
-                    </div>
-                  </div>
-                ) : null}
-                <div className="pointer-events-none absolute bottom-4 right-4 z-[var(--z-map-controls)] flex flex-wrap justify-end gap-2 max-sm:bottom-auto max-sm:top-4">
+              <div className="pointer-events-none absolute inset-x-4 bottom-4 flex flex-col gap-3 sm:inset-x-6 sm:flex-row sm:items-end sm:justify-between">
+                <div className="pointer-events-auto rounded-[var(--radius-medium)] border border-white/70 bg-white/90 p-4 shadow-[var(--shadow-medium)] backdrop-blur-xl">
+                  <p className="text-sm font900 text-[var(--color-brand-dark)]">Paris in motion</p>
+                  <p className="mt-1 max-w-xs text-sm text-[var(--color-text-secondary)]">
+                    Drag, zoom, and choose districts directly on the map.
+                  </p>
+                </div>
+                <div className="pointer-events-auto flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={fitToParis}
-                    className="pointer-events-auto inline-flex min-h-11 items-center rounded-full bg-white px-4 text-sm font900 text-[var(--color-brand-dark)] shadow-[var(--shadow-small)] transition hover:bg-[var(--color-surface-soft)]"
+                    onClick={() => {
+                      enableManualInteraction();
+                      fitToParis();
+                    }}
+                    className="inline-flex min-h-11 items-center rounded-full bg-[var(--color-accent)] px-4 text-sm font900 text-[var(--color-brand-dark)] shadow-[var(--shadow-small)]"
                   >
-                    Reset
+                    Reset Paris
                   </button>
                   <button
                     type="button"
@@ -797,18 +714,18 @@ export function InteractiveParisMap({
                       enableManualInteraction();
                       setExpanded(true);
                     }}
-                    className="pointer-events-auto inline-flex min-h-11 items-center rounded-full bg-[var(--color-feature-dark)] px-4 text-sm font900 text-white shadow-[var(--shadow-small)]"
+                    className="inline-flex min-h-11 items-center rounded-full bg-[var(--color-feature-dark)] px-4 text-sm font900 text-white shadow-[var(--shadow-small)]"
                   >
-                    Full map
+                    Expand map
                   </button>
                   <a
                     href="/browse?view=list"
-                    className="pointer-events-auto inline-flex min-h-11 items-center rounded-full border border-[var(--color-border)] bg-white px-4 text-sm font900 text-[var(--color-brand-dark)] shadow-[var(--shadow-small)]"
+                    className="inline-flex min-h-11 items-center rounded-full border border-[var(--color-border)] bg-white px-4 text-sm font900 text-[var(--color-brand-dark)] shadow-[var(--shadow-small)]"
                   >
                     List view
                   </a>
                 </div>
-              </>
+              </div>
             ) : null}
             {mapError ? (
               <div className="absolute inset-x-4 top-4 rounded-[var(--radius-small)] border border-[var(--color-border)] bg-white/92 p-4 text-sm font800 text-[var(--color-text-secondary)] shadow-[var(--shadow-small)] backdrop-blur">
@@ -836,11 +753,11 @@ export function InteractiveParisMap({
             ) : null}
             {!storyMode ? <div className="pointer-events-none absolute inset-x-3 bottom-3 lg:hidden">
               <div className="pointer-events-auto max-h-56 overflow-y-auto rounded-[var(--radius-medium)] border border-white/60 bg-white/90 p-3 shadow-[var(--shadow-medium)] backdrop-blur-xl">
-                  <StudentMiniList
-                    students={visibleStudents.slice(0, 5)}
-                    activeStudentId={activeStudent?.id}
-                    onSelect={handleStudentSelect}
-                  />
+                <StudentMiniList
+                  students={visibleStudents.slice(0, 5)}
+                  activeStudentId={activeStudent?.id}
+                  onSelect={selectStudent}
+                />
               </div>
             </div> : null}
           </div>
@@ -850,15 +767,14 @@ export function InteractiveParisMap({
           <StudentMapSidebar
             activeStudent={activeStudent}
             students={visibleStudents}
-            service={searchQuery}
-            onSelect={handleStudentSelect}
+            onSelect={selectStudent}
           />
         </aside> : null}
       </div>
     </section>
   );
 
-  return content;
+  return expanded && typeof document !== "undefined" ? createPortal(content, document.body) : content;
 }
 
 function MapToolbar({
@@ -927,15 +843,12 @@ function MapToolbar({
 function StudentMapSidebar({
   activeStudent,
   students,
-  service,
   onSelect,
 }: {
   activeStudent?: Student;
   students: Student[];
-  service?: string;
   onSelect: (id: string) => void;
 }) {
-  const primaryService = activeStudent ? getPrimaryService(activeStudent, undefined, service) : null;
   return (
     <div className="grid gap-4">
       {activeStudent ? (
@@ -958,17 +871,13 @@ function StudentMapSidebar({
               </p>
             </div>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            {activeStudent.verified ? <VerificationBadge compact /> : null}
-            <FavoriteButton studentId={activeStudent.id} label={activeStudent.displayName} />
-          </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            {(primaryService ? [primaryService] : activeStudent.capabilities.slice(0, 4)).map((capability) => (
+            {activeStudent.capabilities.slice(0, 4).map((capability) => (
               <span
-                key={"service" in capability ? capability.service : capability.name}
+                key={capability.service}
                 className="rounded-full bg-[var(--color-background)] px-3 py-1 text-xs font900 text-[var(--color-text-secondary)]"
               >
-                {"service" in capability ? capability.service : capability.name}
+                {capability.service}
               </span>
             ))}
           </div>
@@ -977,16 +886,11 @@ function StudentMapSidebar({
             {activeStudent.distance}
           </p>
           <p className="mt-2 text-sm font900 text-[var(--color-brand-dark)]">
-            {activeStudent.availabilityTag} <span aria-hidden>&middot;</span> {primaryService?.price || activeStudent.startingPrice}
+            {activeStudent.availabilityTag} <span aria-hidden>&middot;</span> {activeStudent.startingPrice}
           </p>
-          <div className="mt-5 grid gap-2 sm:grid-cols-2">
-            <Button href={`/students/${activeStudent.id}`} className="w-full">
-              View profile
-            </Button>
-            <Button href={`/booking?student=${activeStudent.id}`} variant="secondary" className="w-full">
-              Start booking
-            </Button>
-          </div>
+          <Button href={`/students/${activeStudent.id}`} className="mt-5 w-full">
+            View profile
+          </Button>
         </div>
       ) : null}
 
@@ -1076,7 +980,6 @@ function enableMapGestures(map: MapLibreMap) {
   map.keyboard.enable();
   map.doubleClickZoom.enable();
   map.touchZoomRotate.enable();
-  (map as MapLibreMap & { touchPitch?: { enable: () => void } }).touchPitch?.enable();
 }
 
 function buildListHref() {

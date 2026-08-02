@@ -2,11 +2,11 @@
 
 import dynamic from "next/dynamic";
 import type { Student } from "@/lib/data";
-import type { EtudoParisMapProps, GuidedMapFocus } from "./EtudoParisMap";
+import type { EtudoParisMapProps, GuidedMapFocus } from "./InteractiveParisMap";
 import { MapLoadingState } from "./MapLoadingState";
 
 const InteractiveParisMap = dynamic(
-  () => import("./EtudoParisMap").then((module) => module.EtudoParisMap),
+  () => import("./InteractiveParisMap").then((module) => module.InteractiveParisMap),
   {
     ssr: false,
     loading: () => <MapLoadingState />,
