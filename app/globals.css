@@ -113,8 +113,8 @@ button {
 
 .etudo-map-frame {
   position: relative;
-  height: calc(100dvh - 64px);
-  min-height: 560px;
+  height: calc(100dvh - 120px);
+  min-height: 620px;
   background: var(--color-surface-soft);
 }
 
@@ -127,7 +127,7 @@ button {
 
 .etudo-story-map-frame {
   position: relative;
-  height: min(74dvh, 720px);
+  height: clamp(520px, 70dvh, 720px);
   min-height: 520px;
   background: var(--color-surface-soft);
 }
@@ -181,7 +181,7 @@ textarea {
 
 @media (min-width: 1024px) {
   .etudo-map-frame {
-    height: min(760px, calc(100dvh - 72px));
+    height: min(760px, calc(100dvh - 120px));
     min-height: 640px;
   }
 }
@@ -203,8 +203,13 @@ textarea {
   }
 
   .etudo-story-map-frame {
-    height: 560px;
-    min-height: 560px;
+    height: calc(100dvh - 120px);
+    min-height: 520px;
+  }
+
+  .etudo-map-frame {
+    height: calc(100dvh - 120px);
+    min-height: 520px;
   }
 }
 

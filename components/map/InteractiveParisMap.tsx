@@ -7,10 +7,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   arrondissements,
   countStudentsByArrondissement,
+  getPrimaryService,
   studentServesArrondissement,
   type Student,
 } from "@/lib/data";
 import { Button } from "@/components/Button";
+import { FavoriteButton } from "@/components/FavoriteButton";
+import { VerificationBadge } from "@/components/VerificationBadge";
 
 export type GuidedMapFocus = {
   areaNumber: number;
@@ -19,13 +22,17 @@ export type GuidedMapFocus = {
   studentId?: string;
 };
 
-type ParisMapPreviewProps = {
+export type EtudoParisMapProps = {
   students: Student[];
   title?: string;
   initialAreas?: number[];
   onAreasChange?: (areas: number[]) => void;
   variant?: "marketplace" | "story";
   guidedFocus?: GuidedMapFocus;
+  searchQuery?: string;
+  selectedStudentId?: string;
+  onStudentSelect?: (studentId: string) => void;
+  onMapStateChange?: (state: { center: [number, number]; zoom: number }) => void;
 };
 
 type ParisFeature = {
@@ -64,6 +71,7 @@ const AREA_LINE_ID = "paris-arrondissement-line";
 
 const PARIS_MAP_STYLE = {
   version: 8,
+  glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
   sources: {},
   layers: [
     {
@@ -83,15 +91,20 @@ export function InteractiveParisMap({
   onAreasChange,
   variant = "marketplace",
   guidedFocus,
-}: ParisMapPreviewProps) {
+  searchQuery = "",
+  selectedStudentId,
+  onStudentSelect,
+  onMapStateChange,
+}: EtudoParisMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const mapLibRef = useRef<typeof import("maplibre-gl") | null>(null);
   const markersRef = useRef<MarkerHandle[]>([]);
+  const districtLabelsRef = useRef<MarkerHandle[]>([]);
   const selectedAreasRef = useRef<number[]>(initialAreas);
   const [geoJson, setGeoJson] = useState<ParisFeatureCollection | null>(null);
   const [selectedAreas, setSelectedAreas] = useState<number[]>(initialAreas);
-  const [activeStudentId, setActiveStudentId] = useState(students[0]?.id || "");
+  const [internalActiveStudentId, setInternalActiveStudentId] = useState(students[0]?.id || "");
   const [locationNote, setLocationNote] = useState("");
   const [expanded, setExpanded] = useState(false);
   const [mapError, setMapError] = useState("");
@@ -109,8 +122,17 @@ export function InteractiveParisMap({
         : students,
     [selectedAreas, students],
   );
+  const activeStudentId = selectedStudentId || internalActiveStudentId;
   const activeStudent =
     visibleStudents.find((student) => student.id === activeStudentId) || visibleStudents[0];
+
+  const selectStudent = useCallback(
+    (studentId: string) => {
+      setInternalActiveStudentId(studentId);
+      onStudentSelect?.(studentId);
+    },
+    [onStudentSelect],
+  );
 
   const enrichGeoJson = useCallback(
     (source: ParisFeatureCollection) => ({
@@ -187,6 +209,17 @@ export function InteractiveParisMap({
     }
   }, [fitToParis, geoJson]);
 
+  const flyToStudent = useCallback((student: Student, duration = 600) => {
+    if (!mapRef.current || !student.approximateLongitude || !student.approximateLatitude) {
+      return;
+    }
+    mapRef.current.flyTo({
+      center: [student.approximateLongitude, student.approximateLatitude],
+      zoom: Math.max(mapRef.current.getZoom(), 13),
+      duration,
+    });
+  }, []);
+
   function useLocation() {
     if (!navigator.geolocation) {
       setLocationNote("Location is not available in this browser.");
@@ -205,6 +238,17 @@ export function InteractiveParisMap({
       { enableHighAccuracy: false, timeout: 6000 },
     );
   }
+
+  const handleStudentSelect = useCallback(
+    (studentId: string) => {
+      const student = visibleStudents.find((item) => item.id === studentId);
+      selectStudent(studentId);
+      if (student) {
+        flyToStudent(student);
+      }
+    },
+    [flyToStudent, selectStudent, visibleStudents],
+  );
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) {
@@ -383,6 +427,8 @@ export function InteractiveParisMap({
       cancelled = true;
       markersRef.current.forEach((marker) => marker.remove());
       markersRef.current = [];
+      districtLabelsRef.current.forEach((marker) => marker.remove());
+      districtLabelsRef.current = [];
       mapRef.current?.remove();
       mapRef.current = null;
       setMapReady(false);
@@ -419,6 +465,16 @@ export function InteractiveParisMap({
   }, [enrichGeoJson, geoJson, selectedAreas]);
 
   useEffect(() => {
+    if (!selectedStudentId) {
+      return;
+    }
+    const student = students.find((item) => item.id === selectedStudentId);
+    if (student) {
+      flyToStudent(student, 650);
+    }
+  }, [flyToStudent, selectedStudentId, students]);
+
+  useEffect(() => {
     if (!mapReady || !guidedFocus || manualInteraction || !mapRef.current) {
       return;
     }
@@ -433,7 +489,7 @@ export function InteractiveParisMap({
       selectedAreasRef.current = [guidedFocus.areaNumber];
       setSelectedAreas([guidedFocus.areaNumber]);
       if (guidedFocus.studentId) {
-        setActiveStudentId(guidedFocus.studentId);
+        selectStudent(guidedFocus.studentId);
       }
     });
     mapRef.current.flyTo({
@@ -448,7 +504,39 @@ export function InteractiveParisMap({
     guidedFocus,
     manualInteraction,
     mapReady,
+    selectStudent,
   ]);
+
+  useEffect(() => {
+    const maplibregl = mapLibRef.current;
+    const map = mapRef.current;
+    if (!mapReady || !maplibregl || !map) {
+      return;
+    }
+
+    districtLabelsRef.current.forEach((marker) => marker.remove());
+    districtLabelsRef.current = [];
+
+    arrondissements.forEach((area) => {
+      const count = counts[area.number] || 0;
+      const selected = selectedAreasRef.current.includes(area.number);
+      const element = document.createElement("button");
+      element.type = "button";
+      element.className = selected
+        ? "rounded-full border border-white bg-[var(--color-brand)] px-2.5 py-1 text-[11px] font900 leading-tight text-white shadow-[0_10px_24px_rgba(16,42,67,0.2)]"
+        : "rounded-full border border-white/90 bg-white/88 px-2.5 py-1 text-[11px] font900 leading-tight text-[var(--color-brand-dark)] shadow-[0_10px_24px_rgba(16,42,67,0.14)] backdrop-blur";
+      element.innerHTML = `<span>${area.label}</span><span class="ml-1 text-[10px] opacity-75">${count}</span>`;
+      element.setAttribute("aria-label", `${area.label}, ${count} matching students`);
+      element.addEventListener("click", () => {
+        enableManualInteraction();
+        toggleArea(area.number);
+      });
+      const marker = new maplibregl.Marker({ element, anchor: "center" })
+        .setLngLat([area.center.longitude, area.center.latitude])
+        .addTo(map);
+      districtLabelsRef.current.push(marker);
+    });
+  }, [counts, enableManualInteraction, mapReady, selectedAreas, toggleArea]);
 
   useEffect(() => {
     const maplibregl = mapLibRef.current;
@@ -515,7 +603,7 @@ export function InteractiveParisMap({
         markerElement.appendChild(img);
         markerElement.addEventListener("click", () => {
           enableManualInteraction();
-          setActiveStudentId(student.id);
+          selectStudent(student.id);
           map.flyTo({
             center: [
               (student.approximateLongitude || area.center.longitude) + index * 0.0008,
@@ -535,7 +623,30 @@ export function InteractiveParisMap({
         markersRef.current.push(marker);
       });
     });
-  }, [activeStudentId, enableManualInteraction, mapReady, updateSelectedAreas, visibleStudents]);
+  }, [activeStudentId, enableManualInteraction, mapReady, selectStudent, updateSelectedAreas, visibleStudents]);
+
+  useEffect(() => {
+    const currentMap = mapRef.current;
+    if (!currentMap || !onMapStateChange) {
+      return;
+    }
+    const activeMap: MapLibreMap = currentMap;
+
+    function emitState() {
+      const center = activeMap.getCenter();
+      onMapStateChange?.({
+        center: [center.lng, center.lat],
+        zoom: activeMap.getZoom(),
+      });
+    }
+
+    activeMap.on("moveend", emitState);
+    activeMap.on("zoomend", emitState);
+    return () => {
+      activeMap.off("moveend", emitState);
+      activeMap.off("zoomend", emitState);
+    };
+  }, [mapReady, onMapStateChange]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -653,7 +764,7 @@ export function InteractiveParisMap({
               <>
                 {activeStudent ? (
                   <div className="pointer-events-none absolute left-3 top-3 z-[var(--z-map-controls)] max-w-[280px] max-sm:bottom-3 max-sm:top-auto">
-                    <div className="pointer-events-auto rounded-[var(--radius-medium)] border border-white/70 bg-white/92 p-3 shadow-[var(--shadow-medium)] backdrop-blur-xl">
+                  <div className="pointer-events-auto rounded-[var(--radius-medium)] border border-white/70 bg-white/92 p-3 shadow-[var(--shadow-medium)] backdrop-blur-xl">
                       <div className="flex gap-3">
                         <div className="relative size-14 shrink-0 overflow-hidden rounded-[var(--radius-small)] bg-[var(--color-surface-soft)]">
                           <Image src={activeStudent.photo} alt={`Profile photograph of ${activeStudent.displayName}`} fill sizes="56px" className="object-cover" />
@@ -725,11 +836,11 @@ export function InteractiveParisMap({
             ) : null}
             {!storyMode ? <div className="pointer-events-none absolute inset-x-3 bottom-3 lg:hidden">
               <div className="pointer-events-auto max-h-56 overflow-y-auto rounded-[var(--radius-medium)] border border-white/60 bg-white/90 p-3 shadow-[var(--shadow-medium)] backdrop-blur-xl">
-                <StudentMiniList
-                  students={visibleStudents.slice(0, 5)}
-                  activeStudentId={activeStudent?.id}
-                  onSelect={setActiveStudentId}
-                />
+                  <StudentMiniList
+                    students={visibleStudents.slice(0, 5)}
+                    activeStudentId={activeStudent?.id}
+                    onSelect={handleStudentSelect}
+                  />
               </div>
             </div> : null}
           </div>
@@ -739,7 +850,8 @@ export function InteractiveParisMap({
           <StudentMapSidebar
             activeStudent={activeStudent}
             students={visibleStudents}
-            onSelect={setActiveStudentId}
+            service={searchQuery}
+            onSelect={handleStudentSelect}
           />
         </aside> : null}
       </div>
@@ -815,12 +927,15 @@ function MapToolbar({
 function StudentMapSidebar({
   activeStudent,
   students,
+  service,
   onSelect,
 }: {
   activeStudent?: Student;
   students: Student[];
+  service?: string;
   onSelect: (id: string) => void;
 }) {
+  const primaryService = activeStudent ? getPrimaryService(activeStudent, undefined, service) : null;
   return (
     <div className="grid gap-4">
       {activeStudent ? (
@@ -843,13 +958,17 @@ function StudentMapSidebar({
               </p>
             </div>
           </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {activeStudent.verified ? <VerificationBadge compact /> : null}
+            <FavoriteButton studentId={activeStudent.id} label={activeStudent.displayName} />
+          </div>
           <div className="mt-4 flex flex-wrap gap-2">
-            {activeStudent.capabilities.slice(0, 4).map((capability) => (
+            {(primaryService ? [primaryService] : activeStudent.capabilities.slice(0, 4)).map((capability) => (
               <span
-                key={capability.service}
+                key={"service" in capability ? capability.service : capability.name}
                 className="rounded-full bg-[var(--color-background)] px-3 py-1 text-xs font900 text-[var(--color-text-secondary)]"
               >
-                {capability.service}
+                {"service" in capability ? capability.service : capability.name}
               </span>
             ))}
           </div>
@@ -858,11 +977,16 @@ function StudentMapSidebar({
             {activeStudent.distance}
           </p>
           <p className="mt-2 text-sm font900 text-[var(--color-brand-dark)]">
-            {activeStudent.availabilityTag} <span aria-hidden>&middot;</span> {activeStudent.startingPrice}
+            {activeStudent.availabilityTag} <span aria-hidden>&middot;</span> {primaryService?.price || activeStudent.startingPrice}
           </p>
-          <Button href={`/students/${activeStudent.id}`} className="mt-5 w-full">
-            View profile
-          </Button>
+          <div className="mt-5 grid gap-2 sm:grid-cols-2">
+            <Button href={`/students/${activeStudent.id}`} className="w-full">
+              View profile
+            </Button>
+            <Button href={`/booking?student=${activeStudent.id}`} variant="secondary" className="w-full">
+              Start booking
+            </Button>
+          </div>
         </div>
       ) : null}
 

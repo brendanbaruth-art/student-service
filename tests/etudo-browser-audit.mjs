@@ -52,7 +52,9 @@ const viewports = [
 const routes = [
   "/",
   "/browse",
+  "/browse?view=split",
   "/search?q=tutoring&location=Paris",
+  "/search?q=dig+wadlking&location=Paris&view=split",
   "/requests",
   "/earn",
   "/dashboard",
@@ -331,6 +333,31 @@ async function auditRoute(browser, route, viewport) {
       if (!mapState.canvas || mapState.controls < 3 || mapState.fallback) {
         failures.push(`${label}: map did not render controls and canvas`);
       }
+    }
+  }
+
+  if (route.includes("view=split")) {
+    const splitButton = page.getByRole("button", { name: "Split", exact: true });
+    if ((await splitButton.count()) === 1) {
+      await splitButton.click();
+    }
+    const splitMapFrame = page.locator(".etudo-map-frame, .etudo-story-map-frame").first();
+    if ((await splitMapFrame.count()) === 1) {
+      await splitMapFrame.scrollIntoViewIfNeeded();
+    }
+    await page.waitForTimeout(2200);
+    const splitMapState = await page.evaluate(() => ({
+      canvas: Boolean(document.querySelector(".maplibregl-canvas")),
+      controls:
+        document.querySelectorAll(".maplibregl-ctrl button").length +
+        Array.from(document.querySelectorAll("button")).filter((button) =>
+          /Use my location|Reset|Full map|Exit map|List view/i.test(button.textContent || button.getAttribute("aria-label") || ""),
+        ).length,
+      markers: document.querySelectorAll(".maplibregl-marker").length,
+      fallback: document.body.innerText.includes("The Paris map could not load right now."),
+    }));
+    if (!splitMapState.canvas || splitMapState.controls < 3 || splitMapState.markers < 1 || splitMapState.fallback) {
+      failures.push(`${label}: split map did not render canvas, controls, and markers`);
     }
   }
 

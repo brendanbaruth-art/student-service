@@ -23,7 +23,7 @@ export const metadata = {
 
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   const params = await searchParams;
-  const initialView = params?.view === "map" ? "map" : "list";
+  const initialView = params?.view === "map" || params?.view === "split" ? params.view : "list";
   const initialAreas = parseAreas(params?.areas);
 
   return (

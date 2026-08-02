@@ -26,7 +26,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
   const query = params?.q || "";
   const category = params?.category || "";
-  const initialView = params?.view === "map" ? "map" : "list";
+  const initialView = params?.view === "map" || params?.view === "split" ? params.view : "list";
   const initialAreas = parseAreas(params?.areas);
   const correctedQuery = correctSearchQuery(query);
   const activeCategory = findCategory(category);

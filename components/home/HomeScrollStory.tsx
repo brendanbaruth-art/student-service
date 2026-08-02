@@ -24,6 +24,7 @@ import { Button } from "@/components/Button";
 import { SearchBox } from "@/components/SearchBox";
 import { MapClient } from "@/components/map/MapClient";
 import { MapLoadingState } from "@/components/map/MapLoadingState";
+import { HeroVideo } from "@/components/home/HeroVideo";
 import { homepageRequests, heroSearchExamples, parisMotionMoments, pulseItems, skillMoments } from "@/lib/homeStory";
 import { openRequests, students, type Student } from "@/lib/data";
 
@@ -47,113 +48,27 @@ export function HomeScrollStory() {
 
 function CinematicVideoHero() {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const reduceMotion = useReducedMotion();
-  const [videoFailed, setVideoFailed] = useState(false);
-  const [loopMask, setLoopMask] = useState(false);
-  const [saveData] = useState(() => {
-    if (typeof navigator === "undefined") {
-      return false;
-    }
-    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
-    return Boolean(connection?.saveData);
-  });
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
   const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 26, mass: 0.4 });
   const videoScale = useTransform(smooth, [0, 1], reduceMotion ? [1, 1] : [1, 1.045]);
   const headlineOpacity = useTransform(smooth, [0, 0.48, 0.72], [1, 0.85, 0]);
   const lightWash = useTransform(smooth, [0.25, 1], [0, 0.72]);
-  const shouldShowVideo = !reduceMotion && !saveData && !videoFailed;
-
-  useEffect(() => {
-    function onVisibilityChange() {
-      if (!videoRef.current) {
-        return;
-      }
-      if (document.hidden) {
-        videoRef.current.pause();
-      } else if (shouldShowVideo) {
-        void videoRef.current.play().catch(() => setVideoFailed(true));
-      }
-    }
-
-    document.addEventListener("visibilitychange", onVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [shouldShowVideo]);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !shouldShowVideo) {
-      return;
-    }
-
-    function configurePlayback() {
-      if (!video) {
-        return;
-      }
-      video.playbackRate = 0.7;
-    }
-
-    function maskLoopPoint() {
-      if (!video || !Number.isFinite(video.duration) || video.duration <= 0) {
-        return;
-      }
-      const remaining = video.duration - video.currentTime;
-      setLoopMask(remaining < 0.85);
-    }
-
-    configurePlayback();
-    video.addEventListener("loadedmetadata", configurePlayback);
-    video.addEventListener("timeupdate", maskLoopPoint);
-    video.addEventListener("seeked", maskLoopPoint);
-
-    return () => {
-      video.removeEventListener("loadedmetadata", configurePlayback);
-      video.removeEventListener("timeupdate", maskLoopPoint);
-      video.removeEventListener("seeked", maskLoopPoint);
-    };
-  }, [shouldShowVideo]);
 
   return (
     <section ref={sectionRef} data-etudo-section="hero" className="relative h-[125dvh] bg-[var(--color-feature-dark)] text-white max-sm:h-[118dvh]">
       <div className="sticky top-0 min-h-[100dvh] overflow-hidden">
-        <motion.div style={{ scale: videoScale }} className="pointer-events-none absolute inset-0">
-          <Image
-            src={heroPoster}
-            alt="Paris street scene used as the Etudo video fallback poster"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[58%_center]"
-          />
-          {shouldShowVideo ? (
-            <video
-              ref={videoRef}
-              className="absolute inset-0 h-full w-full object-cover object-center"
-              poster={heroPoster}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              aria-hidden="true"
-              onError={() => setVideoFailed(true)}
-            >
-              <source src={mobileVideo} type="video/webm" media="(max-width: 767px)" />
-              <source src={desktopVideo} type="video/webm" media="(min-width: 768px)" />
-            </video>
-          ) : null}
-        </motion.div>
+        <HeroVideo
+          poster={heroPoster}
+          desktopSrc={desktopVideo}
+          mobileSrc={mobileVideo}
+          scale={videoScale}
+          play={!reduceMotion}
+        />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(16,42,67,0.9),rgba(16,42,67,0.66)_48%,rgba(16,42,67,0.28))]" />
         <motion.div
           style={{ opacity: lightWash }}
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(234,246,255,0.08),rgba(234,246,255,0.88))]"
-        />
-        <div
-          className={`pointer-events-none absolute inset-0 bg-[var(--color-feature-dark)] transition-opacity duration-700 ${
-            loopMask ? "opacity-55" : "opacity-0"
-          }`}
-          aria-hidden="true"
         />
         <div className="relative z-[var(--z-content)] mx-auto flex min-h-[100dvh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
           <motion.div style={{ opacity: headlineOpacity }} className="w-full min-w-0 max-w-4xl">
@@ -364,7 +279,7 @@ function ParisMotionScene() {
             <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">Paris in motion</p>
             <h2 className="mt-4 text-page-heading font900 text-[var(--color-brand-dark)]">Paris in motion.</h2>
             <p className="mt-5 max-w-xl text-lg leading-8 text-[var(--color-text-secondary)]">
-              See what students can help with across the city, right now.
+              Find students by skill, arrondissement, availability, and distance.
             </p>
             <div className="mt-8 rounded-[var(--radius-large)] border border-white/80 bg-white/82 p-5 shadow-[var(--shadow-medium)] backdrop-blur-xl">
               <div className="flex items-center justify-between gap-4">
@@ -427,6 +342,7 @@ function DeferredStoryMap({
           students={storyStudents}
           title="A typical Etudo day"
           variant="story"
+          searchQuery={activeMoment.task}
           guidedFocus={{
             areaNumber: activeMoment.areaNumber,
             center: activeMoment.center,
