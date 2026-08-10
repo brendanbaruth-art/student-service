@@ -1,28 +1,30 @@
-import { SlidersHorizontal } from "lucide-react";
+import { Grid2X2, List, Map, SlidersHorizontal } from "lucide-react";
+import type { ReactNode } from "react";
 import { AcademicSearch } from "@/components/academic/AcademicSearch";
 import { CourseCard } from "@/components/academic/CourseCard";
 import { MentorCard } from "@/components/academic/MentorCard";
 import { SearchFilters } from "@/components/academic/SearchFilters";
+import { MapClient } from "@/components/map/MapClient";
 import { PageShell } from "@/components/PageShell";
-import { courses, mentors } from "@/lib/academic";
+import { courses, filterMentors, mentorsToMapStudents, subjects, type MentorFilterInput } from "@/lib/academic";
 
 type BrowsePageProps = {
-  searchParams?: Promise<{
-    q?: string;
-    course?: string;
+  searchParams?: Promise<MentorFilterInput & {
+    view?: string;
   }>;
 };
 
 export const metadata = {
   title: "Find a Mentor",
-  description: "Find verified student mentors by university, course, professor, price, rating, and availability.",
+  description: "Find verified student mentors by university, course, professor, price, rating, distance, and availability.",
 };
 
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
-  const params = await searchParams;
-  const query = params?.q || "";
-  const activeCourse = courses.find((course) => course.id === params?.course || course.slug === params?.course);
-  const mentorResults = activeCourse ? mentors.filter((mentor) => mentor.courseIds.includes(activeCourse.id)) : mentors;
+  const params = (await searchParams) || {};
+  const view = params.view === "map" || params.view === "split" ? params.view : "list";
+  const activeCourse = courses.find((course) => course.id === params.course || course.slug === params.course);
+  const mentorResults = filterMentors(params);
+  const mapStudents = mentorsToMapStudents(mentorResults);
 
   return (
     <PageShell>
@@ -33,27 +35,30 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
             Compare mentors who already took your course.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-text-secondary)]">
-            Search by university, course, and professor. See verified course history, ratings, pricing, and next availability.
+            Search by university, course, professor, subject, distance, price, and availability.
           </p>
           <div className="mt-8">
-            <AcademicSearch compact defaultQuery={query} />
+            <AcademicSearch action="/browse" compact defaultQuery={params.q || params.course || ""} defaultUniversity={params.university || "all"} defaultProfessor={params.professor || ""} />
           </div>
         </div>
       </section>
 
       <section className="border-y border-[var(--color-border)] bg-[var(--color-background)]">
         <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-5 sm:px-6 lg:px-8">
-          {courses.map((course) => (
+          <a href="/browse" className="shrink-0 rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm font800 text-[var(--color-text-secondary)] transition hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]">
+            All mentors
+          </a>
+          {subjects.map((subject) => (
             <a
-              key={course.id}
-              href={`/browse?course=${course.slug}`}
+              key={subject}
+              href={`/browse?subject=${encodeURIComponent(subject)}`}
               className={`shrink-0 rounded-full border px-4 py-2 text-sm font800 transition ${
-                activeCourse?.id === course.id
+                params.subject === subject
                   ? "border-[var(--color-brand)] bg-[var(--color-brand)] text-white"
-                  : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:border-[var(--color-brand)] hover:text-[var(--color-text)]"
+                  : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:border-[var(--color-brand)] hover:text-[var(--color-brand)]"
               }`}
             >
-              {course.title}
+              {subject}
             </a>
           ))}
         </div>
@@ -67,32 +72,48 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
               <SlidersHorizontal size={18} aria-hidden />
             </summary>
             <div className="border-t border-[var(--color-border)] p-4">
-              <SearchFilters />
+              <SearchFilters values={{ ...params, view }} />
             </div>
           </details>
         </div>
         <div className="hidden lg:block">
-          <SearchFilters />
+          <SearchFilters values={{ ...params, view }} />
         </div>
         <div>
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">
-                {mentorResults.length} verified mentors
+                {mentorResults.length} {mentorResults.length === 1 ? "mentor" : "verified mentors"}
               </h2>
               <p className="mt-1 text-sm font700 text-[var(--color-text-secondary)]">
-                Sorted by course relevance, rating, and availability
+                {activeCourse ? `Filtered to ${activeCourse.title}` : "Sorted by course relevance, rating, distance, and availability"}
               </p>
             </div>
-            <a href="/offer" className="text-sm font900 text-[var(--color-brand)] hover:text-[var(--color-brand-dark)]">
-              Become a mentor
-            </a>
+            <div className="flex rounded-md border border-[var(--color-border)] bg-white p-1">
+              <ToggleLink href={withView(params, "list")} active={view === "list"} icon={<List size={16} aria-hidden />} label="List" />
+              <ToggleLink href={withView(params, "map")} active={view === "map"} icon={<Map size={16} aria-hidden />} label="Map" />
+              <ToggleLink href={withView(params, "split")} active={view === "split"} icon={<Grid2X2 size={16} aria-hidden />} label="Split" />
+            </div>
           </div>
-          <div className="mt-6 grid gap-5">
-            {mentorResults.map((mentor) => (
-              <MentorCard key={mentor.id} mentor={mentor} courseId={activeCourse?.id} />
-            ))}
-          </div>
+
+          {view === "map" ? (
+            <div className="mt-6 overflow-hidden rounded-[var(--radius-medium)] border border-[var(--color-border)] bg-white p-3 shadow-[var(--shadow-medium)]">
+              <MapClient students={mapStudents} title="Mentors near university areas" variant="marketplace" searchQuery={params.q || params.course || params.subject || "Academic mentors"} />
+            </div>
+          ) : view === "split" ? (
+            <div className="mt-6 grid gap-5 xl:grid-cols-[1fr_0.95fr]">
+              <div className="grid gap-4">
+                {mentorResults.map((mentor) => <MentorCard key={mentor.id} mentor={mentor} courseId={activeCourse?.id} />)}
+              </div>
+              <div className="overflow-hidden rounded-[var(--radius-medium)] border border-[var(--color-border)] bg-white p-3 shadow-[var(--shadow-medium)] xl:sticky xl:top-24 xl:h-fit">
+                <MapClient students={mapStudents} title="Mentors near university areas" variant="marketplace" searchQuery={params.q || params.course || params.subject || "Academic mentors"} />
+              </div>
+            </div>
+          ) : (
+            <div className="mt-6 grid gap-4 xl:grid-cols-2">
+              {mentorResults.map((mentor) => <MentorCard key={mentor.id} mentor={mentor} courseId={activeCourse?.id} compact />)}
+            </div>
+          )}
         </div>
       </section>
 
@@ -111,4 +132,22 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
       </section>
     </PageShell>
   );
+}
+
+function ToggleLink({ href, active, icon, label }: { href: string; active: boolean; icon: ReactNode; label: string }) {
+  return (
+    <a href={href} className={`inline-flex min-h-9 items-center gap-1 rounded px-3 text-xs font900 transition ${active ? "bg-[var(--color-brand)] text-white" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-soft)]"}`}>
+      {icon}
+      {label}
+    </a>
+  );
+}
+
+function withView(params: MentorFilterInput & { view?: string }, view: string) {
+  const search = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value && key !== "view") search.set(key, value);
+  });
+  search.set("view", view);
+  return `/browse?${search.toString()}`;
 }

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
-import { BadgeCheck, CalendarDays, GraduationCap, MessageCircle, Monitor, ShieldCheck, Users } from "lucide-react";
+import { BadgeCheck, CalendarDays, GraduationCap, MapPin, MessageCircle, Monitor, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/components/Button";
 import { NoteCard } from "@/components/academic/NoteCard";
 import { Rating } from "@/components/academic/Rating";
@@ -52,6 +52,7 @@ export default async function MentorProfilePage({ params }: MentorProfileProps) 
             <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm font700 text-[var(--color-text-secondary)]">
               <Rating rating={mentor.rating} count={mentor.reviews} />
               <span className="flex items-center gap-2"><MessageCircle size={17} aria-hidden /> {mentor.responseTime}</span>
+              <span className="flex items-center gap-2"><MapPin size={17} aria-hidden /> {mentor.area} - {mentor.distance}</span>
               <span className="flex items-center gap-2"><GraduationCap size={17} aria-hidden /> {mentor.completedSessions} sessions</span>
               <span className="flex items-center gap-2"><CalendarDays size={17} aria-hidden /> {mentor.nextAvailable}</span>
             </div>
@@ -123,6 +124,7 @@ export default async function MentorProfilePage({ params }: MentorProfileProps) 
             <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">Skills and session format</h2>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               <InfoPill icon={<Monitor size={16} aria-hidden />} label={mentor.modes.join(" / ")} />
+              <InfoPill icon={<MapPin size={16} aria-hidden />} label={`${mentor.area} - ${mentor.distance}`} />
               <InfoPill icon={<Users size={16} aria-hidden />} label={`${mentor.completedSessions} completed sessions`} />
               <InfoPill icon={<MessageCircle size={16} aria-hidden />} label={mentor.responseTime} />
             </div>

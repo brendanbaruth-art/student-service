@@ -43,16 +43,24 @@ export default async function CoursePage({ params }: CoursePageProps) {
             <span className="rounded-full bg-[var(--color-blue-soft)] px-3 py-1">{mentors.length} available mentors</span>
             <span className="rounded-full bg-[var(--color-blue-soft)] px-3 py-1">{notes.length} note packs</span>
           </div>
+          <nav aria-label={`${course.title} sections`} className="mt-8 flex flex-wrap gap-2">
+            <a href="#mentors" className="inline-flex min-h-10 items-center rounded-md bg-[var(--color-brand)] px-4 text-sm font900 text-white">
+              Mentors
+            </a>
+            <a href="#notes" className="inline-flex min-h-10 items-center rounded-md border border-[var(--color-border)] bg-white px-4 text-sm font900 text-[var(--color-brand-dark)] transition hover:border-[var(--color-brand)]">
+              Notes
+            </a>
+          </nav>
         </div>
       </section>
       <section className="mx-auto grid max-w-7xl gap-12 px-4 py-12 sm:px-6 lg:px-8">
-        <section>
+        <section id="mentors">
           <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">Available mentors</h2>
           <div className="mt-5 grid gap-5">
             {mentors.map((mentor) => <MentorCard key={mentor.id} mentor={mentor} courseId={course.id} />)}
           </div>
         </section>
-        <section>
+        <section id="notes">
           <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">Notes for this course</h2>
           <div className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {notes.map((note) => <NoteCard key={note.id} note={note} />)}

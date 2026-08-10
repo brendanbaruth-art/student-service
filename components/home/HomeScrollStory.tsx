@@ -28,8 +28,8 @@ import { MapClient } from "@/components/map/MapClient";
 import { MapLoadingState } from "@/components/map/MapLoadingState";
 import { HeroVideo } from "@/components/home/HeroVideo";
 import { heroSearchExamples, parisMotionMoments, pulseItems, skillMoments } from "@/lib/homeStory";
-import { courses, formatCourseContext, mentors, noteListings, subjects } from "@/lib/academic";
-import { students, type Student } from "@/lib/data";
+import { courses, formatCourseContext, mentorsToMapStudents, noteListings, subjects } from "@/lib/academic";
+import type { Student } from "@/lib/data";
 
 const heroPoster = "/etudo-paris-eiffel-hero.jpg";
 const desktopVideo = "/etudo-paris-motion.webm";
@@ -50,80 +50,7 @@ export function HomeScrollStory() {
   );
 }
 
-const campusAreaByMentor: Record<string, { area: string; distance: string; arrondissement: number; lat: number; lng: number }> = {
-  "camille-martin": { area: "ESCP / 17e", distance: "Campus-area sessions", arrondissement: 17, lat: 48.8873, lng: 2.3068 },
-  "youssef-benali": { area: "Dauphine / 16e", distance: "Online or campus", arrondissement: 16, lat: 48.8718, lng: 2.2744 },
-  "lea-moreau": { area: "Sorbonne / 5e", distance: "Safe campus meeting areas", arrondissement: 5, lat: 48.8462, lng: 2.345 },
-  "amina-diallo": { area: "Université Paris Cité / 13e", distance: "Online first", arrondissement: 13, lat: 48.8302, lng: 2.3561 },
-  "marc-vidal": { area: "Sciences Po / 7e", distance: "Campus-area sessions", arrondissement: 7, lat: 48.8556, lng: 2.3187 },
-};
-
-const academicMapStudents = mentors.reduce<Student[]>((accumulator, mentor) => {
-    const base = students.find((student) => student.id === mentor.id);
-    const highlight = mentor.courseHighlights[0];
-    const context = formatCourseContext(highlight.courseId, highlight.professorId);
-    const campus = campusAreaByMentor[mentor.id];
-    if (!base || !campus || !context.course || !context.professor || !context.university) {
-      return accumulator;
-    }
-
-    accumulator.push({
-      ...base,
-      fullName: mentor.displayName,
-      displayName: mentor.displayName,
-      university: context.university.name,
-      area: campus.area,
-      distance: campus.distance,
-      bio: mentor.bio,
-      skills: [context.course.title, context.professor.name, context.course.subject],
-      categories: ["academic-mentoring"],
-      services: [
-        {
-          name: context.course.title,
-          description: `Course-specific mentoring for ${context.course.title} with ${context.professor.name}.`,
-          price: `€${mentor.hourlyRate}/hour`,
-          pricingType: "hourly" as const,
-          availability: mentor.nextAvailable,
-          category: "academic-mentoring",
-        },
-      ],
-      startingPrice: `€${mentor.hourlyRate}/hour`,
-      startingPriceValue: mentor.hourlyRate,
-      rating: mentor.rating,
-      reviews: mentor.reviews,
-      availability: mentor.nextAvailable,
-      availabilityTag: mentor.nextAvailable,
-      responseTime: mentor.responseTime,
-      completedTasks: mentor.completedSessions,
-      capabilities: [
-        {
-          service: context.course.title,
-          enabled: true,
-          price: mentor.hourlyRate,
-          pricingType: "hourly" as const,
-          description: `Completed ${context.course.title}; ${highlight.note}`,
-          availability: mentor.nextAvailable,
-          category: "academic-mentoring",
-        },
-        {
-          service: context.professor.name,
-          enabled: true,
-          price: mentor.hourlyRate,
-          pricingType: "hourly" as const,
-          description: "Professor-specific exam and grading guidance.",
-          availability: mentor.nextAvailable,
-          category: "academic-mentoring",
-        },
-      ],
-      serviceAreas: [campus.area],
-      baseArrondissement: campus.arrondissement,
-      approximateLatitude: campus.lat,
-      approximateLongitude: campus.lng,
-      travelNote: "Approximate campus or arrondissement-level meeting area.",
-      verified: mentor.verified,
-    });
-    return accumulator;
-  }, []);
+const academicMapStudents = mentorsToMapStudents();
 
 function CinematicVideoHero() {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -341,9 +268,10 @@ function SkillMomentCard({
           <p className="mt-2 text-sm font700 text-[var(--color-text-secondary)]">{moment.university}</p>
         </div>
       </div>
-      <div className="mt-4 grid grid-cols-3 gap-2 text-sm">
+      <div className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
         <span className="rounded-xl bg-[var(--color-surface-soft)] p-3 font800 text-[var(--color-brand-dark)]">{moment.availability}</span>
         <span className="rounded-xl bg-[var(--color-surface-soft)] p-3 font800 text-[var(--color-brand-dark)]">{moment.travel}</span>
+        <span className="rounded-xl bg-[var(--color-surface-soft)] p-3 font800 text-[var(--color-brand-dark)]">{moment.distance}</span>
         <span className="rounded-xl bg-[var(--color-yellow-soft)] p-3 font900 text-[var(--color-brand-dark)]">{moment.price}</span>
       </div>
     </motion.article>
