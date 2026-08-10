@@ -7,6 +7,7 @@ import {
   BadgeCheck,
   CalendarCheck,
   CheckCircle2,
+  FileText,
   ShieldCheck,
   Sparkles,
   Star,
@@ -20,13 +21,15 @@ import {
   useTransform,
 } from "motion/react";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { AcademicSearch } from "@/components/academic/AcademicSearch";
+import { NoteCard } from "@/components/academic/NoteCard";
 import { Button } from "@/components/Button";
-import { SearchBox } from "@/components/SearchBox";
 import { MapClient } from "@/components/map/MapClient";
 import { MapLoadingState } from "@/components/map/MapLoadingState";
 import { HeroVideo } from "@/components/home/HeroVideo";
-import { homepageRequests, heroSearchExamples, parisMotionMoments, pulseItems, skillMoments } from "@/lib/homeStory";
-import { openRequests, students, type Student } from "@/lib/data";
+import { heroSearchExamples, parisMotionMoments, pulseItems, skillMoments } from "@/lib/homeStory";
+import { courses, formatCourseContext, mentors, noteListings, subjects } from "@/lib/academic";
+import { students, type Student } from "@/lib/data";
 
 const heroPoster = "/etudo-paris-eiffel-hero.jpg";
 const desktopVideo = "/etudo-paris-motion.webm";
@@ -40,11 +43,87 @@ export function HomeScrollStory() {
       <StudentSkillsReveal />
       <ParisMotionScene />
       <BookEarningScene />
-      <PulseAndRequests />
+      <NotesMarketplaceScene />
+      <HowItWorksScene />
       <TrustFinale />
     </div>
   );
 }
+
+const campusAreaByMentor: Record<string, { area: string; distance: string; arrondissement: number; lat: number; lng: number }> = {
+  "camille-martin": { area: "ESCP / 17e", distance: "Campus-area sessions", arrondissement: 17, lat: 48.8873, lng: 2.3068 },
+  "youssef-benali": { area: "Dauphine / 16e", distance: "Online or campus", arrondissement: 16, lat: 48.8718, lng: 2.2744 },
+  "lea-moreau": { area: "Sorbonne / 5e", distance: "Safe campus meeting areas", arrondissement: 5, lat: 48.8462, lng: 2.345 },
+  "amina-diallo": { area: "Université Paris Cité / 13e", distance: "Online first", arrondissement: 13, lat: 48.8302, lng: 2.3561 },
+  "marc-vidal": { area: "Sciences Po / 7e", distance: "Campus-area sessions", arrondissement: 7, lat: 48.8556, lng: 2.3187 },
+};
+
+const academicMapStudents = mentors.reduce<Student[]>((accumulator, mentor) => {
+    const base = students.find((student) => student.id === mentor.id);
+    const highlight = mentor.courseHighlights[0];
+    const context = formatCourseContext(highlight.courseId, highlight.professorId);
+    const campus = campusAreaByMentor[mentor.id];
+    if (!base || !campus || !context.course || !context.professor || !context.university) {
+      return accumulator;
+    }
+
+    accumulator.push({
+      ...base,
+      fullName: mentor.displayName,
+      displayName: mentor.displayName,
+      university: context.university.name,
+      area: campus.area,
+      distance: campus.distance,
+      bio: mentor.bio,
+      skills: [context.course.title, context.professor.name, context.course.subject],
+      categories: ["academic-mentoring"],
+      services: [
+        {
+          name: context.course.title,
+          description: `Course-specific mentoring for ${context.course.title} with ${context.professor.name}.`,
+          price: `€${mentor.hourlyRate}/hour`,
+          pricingType: "hourly" as const,
+          availability: mentor.nextAvailable,
+          category: "academic-mentoring",
+        },
+      ],
+      startingPrice: `€${mentor.hourlyRate}/hour`,
+      startingPriceValue: mentor.hourlyRate,
+      rating: mentor.rating,
+      reviews: mentor.reviews,
+      availability: mentor.nextAvailable,
+      availabilityTag: mentor.nextAvailable,
+      responseTime: mentor.responseTime,
+      completedTasks: mentor.completedSessions,
+      capabilities: [
+        {
+          service: context.course.title,
+          enabled: true,
+          price: mentor.hourlyRate,
+          pricingType: "hourly" as const,
+          description: `Completed ${context.course.title}; ${highlight.note}`,
+          availability: mentor.nextAvailable,
+          category: "academic-mentoring",
+        },
+        {
+          service: context.professor.name,
+          enabled: true,
+          price: mentor.hourlyRate,
+          pricingType: "hourly" as const,
+          description: "Professor-specific exam and grading guidance.",
+          availability: mentor.nextAvailable,
+          category: "academic-mentoring",
+        },
+      ],
+      serviceAreas: [campus.area],
+      baseArrondissement: campus.arrondissement,
+      approximateLatitude: campus.lat,
+      approximateLongitude: campus.lng,
+      travelNote: "Approximate campus or arrondissement-level meeting area.",
+      verified: mentor.verified,
+    });
+    return accumulator;
+  }, []);
 
 function CinematicVideoHero() {
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -73,28 +152,27 @@ function CinematicVideoHero() {
         <div className="relative z-[var(--z-content)] mx-auto flex min-h-[100dvh] max-w-7xl items-center px-4 py-20 sm:px-6 lg:px-8">
           <motion.div style={{ opacity: headlineOpacity }} className="w-full min-w-0 max-w-4xl">
             <p className="max-w-[24ch] text-xs font900 uppercase leading-5 tracking-[0.1em] text-[var(--color-yellow-soft)] sm:max-w-full sm:text-sm sm:tracking-[0.2em]">
-              Student life, moving together.
+              Student-to-student academics in Paris.
             </p>
             <h1 className="mt-4 max-w-[9ch] text-hero font900 sm:mt-5 sm:max-w-[13ch]">
-              A city of students.
-              <span className="block">A network of skills.</span>
+              Learn from students who already took your course.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-white/82 sm:text-lg sm:leading-8">
-              Find help nearby, share what you know, and make life in Paris easier.
+              Find verified student mentors and course notes from students who know your university, professor, and class.
             </p>
             <div className="relative mt-8 max-w-5xl">
-              <SearchBox variant="hero" />
+              <AcademicSearch />
             </div>
             <div className="relative z-[var(--z-content)] mt-4 grid grid-cols-2 gap-3 sm:flex sm:flex-row">
               <Button href="/browse" className="w-full px-3 bg-[var(--color-accent)] text-[var(--color-brand-dark)] hover:bg-[var(--color-yellow-soft)]">
-                Find help
+                Find a Mentor
               </Button>
               <Button
-                href="/offer"
+                href="/notes"
                 variant="secondary"
                 className="w-full border-white/38 bg-white/12 px-3 text-white hover:border-white hover:bg-white/20 hover:text-white"
               >
-                Start earning
+                Browse Notes
               </Button>
             </div>
             <div className="mt-4 flex min-w-0 items-center gap-3 overflow-x-auto pb-2">
@@ -102,7 +180,7 @@ function CinematicVideoHero() {
                 {heroSearchExamples.map((item) => (
                   <Link
                     key={item}
-                    href={`/search?q=${encodeURIComponent(item)}&location=Paris`}
+                    href={`/search?q=${encodeURIComponent(item)}`}
                     className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-white/28 bg-white/12 px-3 text-sm font900 text-white/88 backdrop-blur transition hover:border-white/60 hover:bg-white/18 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
                   >
                     {item}
@@ -122,19 +200,19 @@ function PurposeSearchScene() {
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
         <div>
           <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">
-            Built for ordinary Paris days
+            Course-first discovery
           </p>
           <h2 className="mt-4 text-page-heading font900 text-[var(--color-brand-dark)]">
-            Whatever today needs,
-            <span className="block">there is probably a student for it.</span>
+            Your course. Your professor.
+            <span className="block">Someone who&apos;s already done it.</span>
           </h2>
         </div>
         <div className="rounded-[var(--radius-large)] border border-white/70 bg-white/76 p-5 shadow-[var(--shadow-medium)] backdrop-blur-xl">
           <p className="text-base leading-7 text-[var(--color-text-secondary)]">
-            Etudo is not just tutoring. It is the small network that helps a move go smoothly, a laptop get fixed, a pet get walked, and a new skill find paid work between classes.
+            Etudo connects students with verified mentors who already completed the same university courses, often with the same professor.
           </p>
           <div className="mt-6 flex flex-wrap gap-2">
-            {["Moving", "Excel", "Pets", "Photos", "Languages", "Tech"].map((item) => (
+            {subjects.map((item) => (
               <Link
                 key={item}
                 href={`/search?q=${encodeURIComponent(item)}`}
@@ -143,6 +221,28 @@ function PurposeSearchScene() {
                 {item}
               </Link>
             ))}
+          </div>
+          <div className="mt-6 grid gap-2">
+            {courses.slice(0, 3).map((course) => {
+              const context = formatCourseContext(course.id);
+              return (
+                <Link
+                  key={course.id}
+                  href={`/universities/${course.universityId}/courses/${course.slug}`}
+                  className="group flex items-center justify-between gap-4 rounded-[var(--radius-medium)] border border-[var(--color-border)] bg-white px-4 py-3 transition hover:-translate-y-0.5 hover:border-[var(--color-brand)] hover:shadow-[var(--shadow-small)]"
+                >
+                  <span>
+                    <span className="block font900 text-[var(--color-brand-dark)]">{course.title}</span>
+                    <span className="mt-1 block text-sm font700 text-[var(--color-text-secondary)]">
+                      {context.university?.name} - {context.professor?.name}
+                    </span>
+                  </span>
+                  <span className="shrink-0 rounded-full bg-[var(--color-blue-soft)] px-3 py-1 text-xs font900 text-[var(--color-brand)]">
+                    Mentors + Notes
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -156,7 +256,7 @@ function StudentSkillsReveal() {
   const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start end", "end start"] });
   const progress = useSpring(scrollYProgress, { stiffness: 90, damping: 24, mass: 0.35 });
   const storyStudents = useMemo(
-    () => skillMoments.map((moment) => students.find((student) => student.id === moment.studentId)).filter(Boolean),
+    () => skillMoments.map((moment) => academicMapStudents.find((student) => student.id === moment.studentId)).filter(Boolean),
     [],
   );
 
@@ -165,15 +265,15 @@ function StudentSkillsReveal() {
       <div className="flex min-h-[100dvh] items-center overflow-hidden">
         <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-20 sm:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:px-8">
           <div className="flex flex-col justify-center">
-            <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">Student skills</p>
+            <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">Verified mentors</p>
             <h2 className="mt-4 text-section-heading font900 text-[var(--color-brand-dark)]">
-              Everyday help, moving through the city.
+              Course-specific help across the city.
             </h2>
             <p className="mt-5 max-w-md text-lg leading-8 text-[var(--color-text-secondary)]">
-              A few moments from the Etudo network, shaped around classes, Metro rides, and spare evenings.
+              Compare mentors by university, course, professor, price, rating, verification, and availability.
             </p>
             <div className="mt-8">
-              <Button href="/browse">Explore students</Button>
+              <Button href="/browse">Find a Mentor</Button>
             </div>
           </div>
           <div className="relative min-h-[680px] max-md:grid max-md:min-h-0 max-md:gap-4">
@@ -264,7 +364,7 @@ function ParisMotionScene() {
   });
 
   const activeMoment = parisMotionMoments[activeIndex];
-  const storyStudents = students.slice(0, 12);
+  const storyStudents = academicMapStudents;
 
   return (
     <section ref={sectionRef} data-etudo-section="map" className="relative bg-[var(--color-background)]">
@@ -276,10 +376,10 @@ function ParisMotionScene() {
         />
         <div className="mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[0.76fr_1.24fr] lg:items-center">
           <div>
-            <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">Paris in motion</p>
-            <h2 className="mt-4 text-page-heading font900 text-[var(--color-brand-dark)]">Paris in motion.</h2>
+            <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">Paris mentor map</p>
+            <h2 className="mt-4 text-page-heading font900 text-[var(--color-brand-dark)]">Academic help across Paris.</h2>
             <p className="mt-5 max-w-xl text-lg leading-8 text-[var(--color-text-secondary)]">
-              Find students by skill, arrondissement, availability, and distance.
+              Explore verified mentors by university area, course, subject, availability, and online or in-person format.
             </p>
             <div className="mt-8 rounded-[var(--radius-large)] border border-white/80 bg-white/82 p-5 shadow-[var(--shadow-medium)] backdrop-blur-xl">
               <div className="flex items-center justify-between gap-4">
@@ -384,17 +484,15 @@ function BookEarningScene() {
               style={{ opacity: spreadOpacity }}
               className="absolute inset-0 grid overflow-hidden rounded-[28px] border border-[#EEE5CF] bg-[#FFFDF4] shadow-inner [transform-style:preserve-3d] sm:grid-cols-2"
             >
-              <BookPage eyebrow="Open left page" title="Your time has value.">
-                Between lectures, work and evenings, your schedule can still create something useful.
+              <BookPage eyebrow="Open left page" title="Your knowledge has value.">
+                You already passed the course. Help another student do the same.
               </BookPage>
               <BookPage eyebrow="Open right page" title="Earn with what you already know." right>
-                <span className="block">Teach a subject.</span>
-                <span className="block">Share a language.</span>
-                <span className="block">Take photos.</span>
-                <span className="block">Fix a laptop.</span>
-                <span className="block">Help someone move.</span>
+                <span className="block">Set your mentoring rate.</span>
+                <span className="block">Choose your availability.</span>
+                <span className="block">Sell notes from courses you completed.</span>
                 <span className="mt-4 block text-sm font800 leading-6 text-[var(--color-text-secondary)] sm:text-base">
-                  Choose your services, set your own price and work around university.
+                  Turn course experience into useful academic support for another student.
                 </span>
               </BookPage>
             </motion.div>
@@ -410,7 +508,7 @@ function BookEarningScene() {
               </span>
               <p className="relative mt-20 text-xl font900 text-white/76 max-sm:mt-16">Etudo</p>
               <h2 className="relative mt-4 max-w-xl text-[clamp(2.2rem,6vw,5rem)] font900 leading-[0.96]">
-                Your skills have a next chapter.
+                Your course notes have a next chapter.
               </h2>
               <div className="absolute bottom-8 left-8 size-3 rounded-full bg-[var(--color-accent)] sm:left-12" />
             </motion.div>
@@ -419,10 +517,10 @@ function BookEarningScene() {
               className="absolute inset-x-5 bottom-5 z-[var(--z-content)] flex flex-col gap-3 sm:left-auto sm:right-8 sm:w-[calc(50%-4rem)] sm:flex-row"
             >
               <Button href="/offer" className="bg-[var(--color-accent)] text-[var(--color-brand-dark)] hover:bg-[var(--color-yellow-soft)]">
-                Start earning
+                Become a Mentor
               </Button>
-              <Button href="/offer?category=tutoring" variant="ghost" className="bg-white/88">
-                Become a tutor
+              <Button href="/sell-notes" variant="ghost" className="bg-white/88">
+                Sell Notes
               </Button>
             </motion.div>
           </div>
@@ -460,13 +558,13 @@ function BookPage({
   );
 }
 
-function PulseAndRequests() {
+function NotesMarketplaceScene() {
   return (
     <section className="bg-white px-4 py-24 sm:px-6 lg:px-8">
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
         <div className="rounded-[var(--radius-large)] bg-[var(--color-feature-dark)] p-6 text-white shadow-[var(--shadow-large)]">
           <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-accent)]">Etudo Pulse</p>
-          <h2 className="mt-3 text-3xl font900">Happening around Paris</h2>
+          <h2 className="mt-3 text-3xl font900">Academic activity around Paris</h2>
           <div className="mt-6 grid gap-3">
             {pulseItems.map((item, index) => (
               <motion.div
@@ -486,40 +584,71 @@ function PulseAndRequests() {
         <div>
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">Open requests</p>
+              <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">Notes Marketplace</p>
               <h2 className="mt-3 text-section-heading font900 text-[var(--color-brand-dark)]">
-                Three ways to help today.
+                Made for the class you&apos;re actually taking.
               </h2>
+              <p className="mt-4 max-w-xl text-lg leading-8 text-[var(--color-text-secondary)]">
+                Preview and buy notes from students who already completed your course.
+              </p>
             </div>
-            <Link href="/requests" className="inline-flex items-center gap-2 text-sm font900 text-[var(--color-brand)]">
-              See open requests <ArrowRight size={16} aria-hidden />
+            <Link href="/notes" className="inline-flex items-center gap-2 text-sm font900 text-[var(--color-brand)]">
+              Browse Notes <ArrowRight size={16} aria-hidden />
             </Link>
           </div>
-          <div className="mt-8 grid gap-4">
-            {homepageRequests.map((request, index) => {
-              const existingRequest = openRequests[index];
-              return (
-                <Link
-                  key={request.title}
-                  href={existingRequest ? `/requests/${existingRequest.id}` : "/requests"}
-                  className="group grid gap-4 rounded-[var(--radius-medium)] border border-[var(--color-border)] bg-[var(--color-surface-soft)] p-5 transition hover:-translate-y-1 hover:bg-white hover:shadow-[var(--shadow-medium)] sm:grid-cols-[1fr_auto]"
-                >
-                  <span>
-                    <span className="block text-2xl font900 text-[var(--color-brand-dark)]">{request.title}</span>
-                    <span className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm font800 text-[var(--color-text-secondary)]">
-                      <span>{request.area}</span>
-                      <span aria-hidden>&middot;</span>
-                      <span>{request.timing}</span>
-                    </span>
-                  </span>
-                  <span className="flex items-center justify-between gap-4 sm:justify-end">
-                    <span className="rounded-full bg-[var(--color-accent)] px-3 py-2 text-lg font900 text-[var(--color-brand-dark)]">{request.budget}</span>
-                    <ArrowRight size={20} className="text-[var(--color-brand)] transition group-hover:translate-x-1" aria-hidden />
-                  </span>
-                </Link>
-              );
-            })}
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            {noteListings.slice(0, 4).map((note) => (
+              <NoteCard key={note.id} note={note} />
+            ))}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorksScene() {
+  const flows = [
+    {
+      title: "Mentoring",
+      steps: ["Find your course", "Compare verified mentors", "Book a session", "Learn from someone who already passed it"],
+    },
+    {
+      title: "Notes",
+      steps: ["Find your course", "Preview notes", "Purchase", "Study"],
+    },
+  ];
+
+  return (
+    <section className="bg-[var(--color-background)] px-4 py-24 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
+        <div className="max-w-3xl">
+          <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">How Etudo works</p>
+          <h2 className="mt-4 text-page-heading font900 text-[var(--color-brand-dark)]">
+            One course can lead to a mentor, notes, or both.
+          </h2>
+        </div>
+        <div className="mt-10 grid gap-4 lg:grid-cols-2">
+          {flows.map((flow) => (
+            <div key={flow.title} className="rounded-[var(--radius-large)] border border-white/70 bg-white/78 p-6 shadow-[var(--shadow-medium)] backdrop-blur-xl">
+              <div className="flex items-center gap-3">
+                <span className="grid size-11 place-items-center rounded-md bg-[var(--color-accent)] text-[var(--color-brand-dark)]">
+                  <FileText size={19} aria-hidden />
+                </span>
+                <h3 className="text-2xl font900 text-[var(--color-brand-dark)]">{flow.title}</h3>
+              </div>
+              <ol className="mt-6 grid gap-3">
+                {flow.steps.map((step, index) => (
+                  <li key={step} className="flex items-center gap-3 text-sm font900 text-[var(--color-text-secondary)]">
+                    <span className="grid size-8 shrink-0 place-items-center rounded-full bg-[var(--color-blue-soft)] text-xs font900 text-[var(--color-brand)]">
+                      {index + 1}
+                    </span>
+                    {step}
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -528,8 +657,8 @@ function PulseAndRequests() {
 
 function TrustFinale() {
   const items = [
-    ["University affiliation", BadgeCheck],
-    ["Clear booking details", CalendarCheck],
+    ["Student status verification", BadgeCheck],
+    ["Course completion checks", CalendarCheck],
     ["Ratings and reviews", Star],
     ["Reporting and support", ShieldCheck],
   ] as const;
@@ -539,10 +668,10 @@ function TrustFinale() {
       <div className="mx-auto max-w-6xl text-center">
         <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-accent)]">Built around trust</p>
         <h2 className="mx-auto mt-4 max-w-4xl text-page-heading font900">
-          Need help, or ready to earn?
+          Find your course. Choose your next step.
         </h2>
         <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/72">
-          Etudo helps students find trusted help and earn money by offering their skills across Paris.
+          Etudo helps students compare verified course mentors, preview student notes, and learn from people who already took the class.
         </p>
         <div className="mx-auto mt-10 grid max-w-4xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {items.map(([item, Icon]) => (
@@ -554,15 +683,15 @@ function TrustFinale() {
         </div>
         <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
           <Button href="/browse" className="bg-[var(--color-accent)] text-[var(--color-brand-dark)] hover:bg-[var(--color-yellow-soft)]">
-            Find student help
+            Find a Mentor
           </Button>
-          <Button href="/offer" variant="secondary" className="border-white/28 bg-white/10 text-white hover:border-white hover:bg-white/18 hover:text-white">
-            Become a helper
+          <Button href="/notes" variant="secondary" className="border-white/28 bg-white/10 text-white hover:border-white hover:bg-white/18 hover:text-white">
+            Browse Notes
           </Button>
         </div>
         <div className="mt-10 inline-flex items-center gap-2 text-sm font900 text-white/70">
           <CheckCircle2 size={16} className="text-[var(--color-accent)]" aria-hidden />
-          Student-to-student help, built for life in Paris.
+          Course-specific academic support, built for student life in Paris.
         </div>
       </div>
     </section>
