@@ -1,10 +1,11 @@
-﻿import { PageShell } from "@/components/PageShell";
-import { SavedStudentsClient } from "@/components/SavedStudentsClient";
-import { students } from "@/lib/data";
+import { MentorCard } from "@/components/academic/MentorCard";
+import { NoteCard } from "@/components/academic/NoteCard";
+import { PageShell } from "@/components/PageShell";
+import { mentors, noteListings } from "@/lib/academic";
 
 export const metadata = {
-  title: "Saved students",
-  description: "View your saved Etudo student helpers.",
+  title: "Saved academic resources",
+  description: "View saved Etudo mentors and notes.",
 };
 
 export default function SavedPage() {
@@ -16,15 +17,26 @@ export default function SavedPage() {
             Saved
           </p>
           <h1 className="mt-3 text-4xl font900 tracking-tight text-[var(--color-brand-dark)] sm:text-5xl">
-            Saved students
+            Saved mentors and notes
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-text-secondary)]">
-            Keep track of students you may want to book again.
+            Keep track of mentors and study materials you may want to use for your next exam.
           </p>
         </div>
       </section>
-      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <SavedStudentsClient students={students} />
+      <section className="mx-auto grid max-w-7xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
+        <div>
+          <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">Mentors</h2>
+          <div className="mt-5 grid gap-5">
+            {mentors.slice(0, 2).map((mentor) => <MentorCard key={mentor.id} mentor={mentor} />)}
+          </div>
+        </div>
+        <div>
+          <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">Notes</h2>
+          <div className="mt-5 grid gap-5">
+            {noteListings.slice(0, 3).map((note) => <NoteCard key={note.id} note={note} />)}
+          </div>
+        </div>
       </section>
     </PageShell>
   );

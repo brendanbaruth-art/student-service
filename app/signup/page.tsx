@@ -3,7 +3,7 @@ import { SignupFlow } from "@/components/SignupFlow";
 
 export const metadata = {
   title: "Get started",
-  description: "Create an Etudo account to find help or offer student services in Paris.",
+  description: "Create an Etudo account to find course mentors, buy notes, or offer academic support.",
 };
 
 export default function SignupPage() {
@@ -15,17 +15,16 @@ export default function SignupPage() {
             Get started
           </p>
           <h1 className="mt-3 text-4xl font900 tracking-tight text-[var(--color-brand-dark)] sm:text-5xl">
-            Join a trusted student network in Paris.
+            Join Etudo&apos;s academic marketplace.
           </h1>
           <p className="mt-5 text-lg leading-8 text-[var(--color-text-secondary)]">
-            Create your account, choose how you want to use Etudo, and complete
-            student verification when you are ready to book or offer services.
+            Create one account to book course mentors, buy study notes, sell your own materials, or offer academic support.
           </p>
           <div className="mt-8 grid gap-4">
             {[
-              "Find reliable help for everyday tasks",
-              "Offer services around your schedule",
-              "Use one profile for booking and earning",
+              "Find mentors who already took your course",
+              "Buy notes connected to your professor and university",
+              "Use one profile for learning, mentoring, and selling notes",
             ].map((item) => (
               <div key={item} className="rounded-lg border border-[var(--color-border)] bg-white p-4 text-sm font800 text-[var(--color-text)]">
                 {item}

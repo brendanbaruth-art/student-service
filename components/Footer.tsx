@@ -5,15 +5,16 @@ const columns = [
   {
     title: "Explore",
     links: [
-      { href: "/browse", label: "Find help" },
-      { href: "/offer", label: "Offer a service" },
-      { href: "/#how-it-works", label: "How it works" },
+      { href: "/browse", label: "Find a Mentor" },
+      { href: "/notes", label: "Notes Marketplace" },
+      { href: "/offer", label: "Become a Mentor" },
+      { href: "/#how-it-works", label: "How It Works" },
     ],
   },
   {
     title: "Trust",
     links: [
-      { href: "/verification", label: "Student verification" },
+      { href: "/verification", label: "Academic verification" },
       { href: "/safety", label: "Safety" },
       { href: "/help", label: "Help centre" },
     ],
@@ -36,7 +37,7 @@ export function Footer() {
         <div>
           <Logo />
           <p className="mt-4 max-w-sm text-sm leading-6 text-[var(--color-text-secondary)]">
-            Student-to-student help, built for life in Paris.
+            Course-specific mentors and student notes for university life.
           </p>
           <div className="mt-6 flex flex-wrap gap-3 text-sm text-[var(--color-text-secondary)]">
             <span>Paris, France</span>

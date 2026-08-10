@@ -40,7 +40,7 @@ export function SignupFlow() {
         <section className="mt-8">
           <h2 className="text-xl font900 text-[var(--color-brand-dark)]">Step 1: How would you like to use Etudo?</h2>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            {["Find help", "Offer services", "Both"].map((option) => (
+            {["Find a mentor", "Become a mentor", "Buy or sell notes"].map((option) => (
               <label key={option} className="flex min-h-12 items-center gap-3 rounded-md border border-[var(--color-border)] px-3 text-sm font800 text-[var(--color-text)]">
                 <input name="role" type="radio" className="size-4 accent-[var(--color-brand)]" required />
                 {option}
@@ -88,10 +88,10 @@ export function SignupFlow() {
         <section className="mt-8">
           <h2 className="text-xl font900 text-[var(--color-brand-dark)]">Step 3: Student verification</h2>
           <p className="mt-2 text-sm leading-6 text-[var(--color-text-secondary)]">
-            Students verify university affiliation before offering services and before accessing some booking features.
+            Students verify university affiliation before booking mentors, selling notes, or offering academic support.
           </p>
           <div className="mt-4 rounded-md border border-[var(--color-success-border)] bg-[var(--color-success-soft)] p-4 text-sm font700 text-[var(--color-success)]">
-            University email and student document checks keep the network safer for everyone.
+            University email, student documents, and course history checks help keep Etudo course-specific and trusted.
           </div>
         </section>
       ) : null}
@@ -102,16 +102,17 @@ export function SignupFlow() {
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <TextInput id="photo" label="Profile photo" type="file" accept="image/*" />
             <TextInput id="languages" label="Languages" placeholder="French, English" />
-            <SelectField id="helper-category" label="Service category">
-              <option>Moving help</option>
-              <option>Tutoring</option>
-              <option>Furniture assembly</option>
-              <option>Pet care</option>
+            <SelectField id="helper-category" label="Academic role">
+              <option>Course mentor</option>
+              <option>Notes seller</option>
+              <option>Course mentor and notes seller</option>
             </SelectField>
-            <TextInput id="price" label="Starting price" placeholder="€22/hour" />
+            <TextInput id="courses" label="Courses completed" placeholder="Financial Accounting, Corporate Finance" />
+            <TextInput id="professors" label="Professors studied under" placeholder="Professor Claire Dupont" />
+            <TextInput id="price" label="Mentoring rate" placeholder="€22/hour" />
             <TextInput id="availability" label="Availability" placeholder="Evenings, weekends" />
-            <TextInput id="areas" label="Paris service areas" placeholder="5e, 6e, 13e" />
-            <TextAreaField id="bio" label="Short bio" placeholder="Write two or three sentences about how you can help." />
+            <TextInput id="format" label="Session format" placeholder="Online, in person near campus" />
+            <TextAreaField id="bio" label="Short bio" placeholder="Write two or three sentences about the courses you can help with." />
           </div>
         </section>
       ) : null}

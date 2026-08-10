@@ -1,18 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, Heart, Map, Menu, MessageCircle, Search, UserRound, X } from "lucide-react";
+import { Bell, BookOpen, Menu, MessageCircle, Search, UserRound, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "./Logo";
 import { notifications } from "@/lib/data";
 
 const navItems = [
-  { href: "/browse", label: "Find help" },
-  { href: "/browse?view=map", label: "Map" },
-  { href: "/requests", label: "Browse requests" },
-  { href: "/offer", label: "Earn with Etudo" },
-  { href: "/#how-it-works", label: "How it works" },
+  { href: "/browse", label: "Find a Mentor" },
+  { href: "/notes", label: "Notes Marketplace" },
+  { href: "/#how-it-works", label: "How It Works" },
+  { href: "/offer", label: "Become a Mentor" },
 ];
 
 export function Header() {
@@ -85,8 +84,8 @@ export function Header() {
           <Link href="/messages" className="grid size-9 place-items-center rounded-full text-[var(--color-text-secondary)] transition hover:bg-[var(--color-blue-soft)] hover:text-[var(--color-brand-dark)]" aria-label="Messages">
             <MessageCircle size={19} aria-hidden />
           </Link>
-          <Link href="/saved" className="grid size-9 place-items-center rounded-full text-[var(--color-text-secondary)] transition hover:bg-[var(--color-blue-soft)] hover:text-[var(--color-brand-dark)]" aria-label="Saved students">
-            <Heart size={19} aria-hidden />
+          <Link href="/notes" className="grid size-9 place-items-center rounded-full text-[var(--color-text-secondary)] transition hover:bg-[var(--color-blue-soft)] hover:text-[var(--color-brand-dark)]" aria-label="Notes marketplace">
+            <BookOpen size={19} aria-hidden />
           </Link>
           <div className="relative">
             <button
@@ -127,10 +126,10 @@ export function Header() {
               <div className="absolute right-0 top-11 w-56 rounded-2xl border border-[var(--color-border)] bg-white/92 p-2 shadow-[0_20px_45px_rgba(16,42,67,0.16)] backdrop-blur-xl">
                 {[
                   ["Profile", "/dashboard"],
-                  ["Bookings", "/dashboard"],
-                  ["Saved students", "/saved"],
+                  ["Tutoring sessions", "/dashboard"],
+                  ["Purchased notes", "/dashboard"],
                   ["Messages", "/messages"],
-                  ["My requests", "/requests"],
+                  ["Sell notes", "/sell-notes"],
                   ["Settings", "/dashboard"],
                 ].map(([label, href]) => (
                   <Link key={label} href={href} className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font800 text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-soft)] hover:text-[var(--color-brand-dark)]">
@@ -162,8 +161,8 @@ export function Header() {
               <Link href="/search" onClick={() => setOpen(false)} className="grid min-h-12 place-items-center rounded-xl bg-[var(--color-blue-soft)] text-sm font800 text-[var(--color-brand-dark)]">
                 <Search size={17} aria-hidden /> Search
               </Link>
-              <Link href="/browse?view=map" onClick={() => setOpen(false)} className="grid min-h-12 place-items-center rounded-xl bg-[var(--color-blue-soft)] text-sm font800 text-[var(--color-brand-dark)]">
-                <Map size={17} aria-hidden /> Map
+              <Link href="/notes" onClick={() => setOpen(false)} className="grid min-h-12 place-items-center rounded-xl bg-[var(--color-blue-soft)] text-sm font800 text-[var(--color-brand-dark)]">
+                <BookOpen size={17} aria-hidden /> Notes
               </Link>
               <Link href="/dashboard" onClick={() => setOpen(false)} className="grid min-h-12 place-items-center rounded-xl bg-[var(--color-blue-soft)] text-sm font800 text-[var(--color-brand-dark)]">
                 <UserRound size={17} aria-hidden /> Profile
@@ -191,7 +190,7 @@ export function Header() {
               onClick={() => setOpen(false)}
               className="rounded-md px-3 py-3 text-base font-semibold text-[var(--color-brand-dark)] hover:bg-[var(--color-surface-soft)]"
             >
-              Saved
+              Saved notes
             </Link>
             <Link
               href="/dashboard"

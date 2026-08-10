@@ -1,69 +1,61 @@
-import Link from "next/link";
-import { ChevronRight, SlidersHorizontal } from "lucide-react";
-import { EmptyState } from "@/components/EmptyState";
-import { FilterControls } from "@/components/FilterControls";
-import { FindHelpResults } from "@/components/FindHelpResults";
+import { SlidersHorizontal } from "lucide-react";
+import { AcademicSearch } from "@/components/academic/AcademicSearch";
+import { CourseCard } from "@/components/academic/CourseCard";
+import { MentorCard } from "@/components/academic/MentorCard";
+import { SearchFilters } from "@/components/academic/SearchFilters";
 import { PageShell } from "@/components/PageShell";
-import { RequestCard } from "@/components/RequestCard";
-import { SearchBox } from "@/components/SearchBox";
-import { ServiceCard } from "@/components/ServiceCard";
-import { categories, openRequests, popularCategories, students } from "@/lib/data";
+import { courses, mentors } from "@/lib/academic";
 
 type BrowsePageProps = {
   searchParams?: Promise<{
-    view?: string;
-    areas?: string;
+    q?: string;
+    course?: string;
   }>;
 };
 
 export const metadata = {
-  title: "Find help",
-  description: "Find verified student help across Paris with Etudo.",
+  title: "Find a Mentor",
+  description: "Find verified student mentors by university, course, professor, price, rating, and availability.",
 };
 
 export default async function BrowsePage({ searchParams }: BrowsePageProps) {
   const params = await searchParams;
-  const initialView = params?.view === "map" || params?.view === "split" ? params.view : "list";
-  const initialAreas = parseAreas(params?.areas);
+  const query = params?.q || "";
+  const activeCourse = courses.find((course) => course.id === params?.course || course.slug === params?.course);
+  const mentorResults = activeCourse ? mentors.filter((mentor) => mentor.courseIds.includes(activeCourse.id)) : mentors;
 
   return (
     <PageShell>
       <section className="bg-white">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">
-            Find help
-          </p>
+          <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">Find a Mentor</p>
           <h1 className="mt-3 max-w-4xl text-page-heading font900 text-[var(--color-brand-dark)]">
-            Students available to help in Paris.
+            Compare mentors who already took your course.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-text-secondary)]">
-            Search by task, compare verified helpers, and choose the right person for your schedule.
+            Search by university, course, and professor. See verified course history, ratings, pricing, and next availability.
           </p>
           <div className="mt-8">
-            <SearchBox compact />
+            <AcademicSearch compact defaultQuery={query} />
           </div>
         </div>
       </section>
 
       <section className="border-y border-[var(--color-border)] bg-[var(--color-background)]">
-        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            <Link
-              href="/search"
-              className="shrink-0 rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm font800 text-[var(--color-text)]"
+        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-5 sm:px-6 lg:px-8">
+          {courses.map((course) => (
+            <a
+              key={course.id}
+              href={`/browse?course=${course.slug}`}
+              className={`shrink-0 rounded-full border px-4 py-2 text-sm font800 transition ${
+                activeCourse?.id === course.id
+                  ? "border-[var(--color-brand)] bg-[var(--color-brand)] text-white"
+                  : "border-[var(--color-border)] bg-white text-[var(--color-text-secondary)] hover:border-[var(--color-brand)] hover:text-[var(--color-text)]"
+              }`}
             >
-              All services
-            </Link>
-            {categories.map((category) => (
-              <Link
-                key={category.slug}
-                href={`/search?category=${category.slug}`}
-                className="shrink-0 rounded-full border border-[var(--color-border)] bg-white px-4 py-2 text-sm font800 text-[var(--color-text-secondary)] transition hover:border-[var(--color-brand)] hover:text-[var(--color-text)]"
-              >
-                {category.name}
-              </Link>
-            ))}
-          </div>
+              {course.title}
+            </a>
+          ))}
         </div>
       </section>
 
@@ -75,89 +67,48 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
               <SlidersHorizontal size={18} aria-hidden />
             </summary>
             <div className="border-t border-[var(--color-border)] p-4">
-              <FilterControls />
+              <SearchFilters />
             </div>
           </details>
         </div>
         <div className="hidden lg:block">
-          <FilterControls />
+          <SearchFilters />
         </div>
         <div>
           <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
             <div>
               <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">
-                Students available to help in Paris
+                {mentorResults.length} verified mentors
               </h2>
               <p className="mt-1 text-sm font700 text-[var(--color-text-secondary)]">
-                {students.length} results <span aria-hidden>&middot;</span> Recommended first
+                Sorted by course relevance, rating, and availability
               </p>
             </div>
-            <Link
-              href="/offer"
-              className="inline-flex items-center gap-1 text-sm font900 text-[var(--color-brand)] hover:text-[var(--color-brand-dark)]"
-            >
-              Want to offer help? <ChevronRight size={16} aria-hidden />
-            </Link>
+            <a href="/offer" className="text-sm font900 text-[var(--color-brand)] hover:text-[var(--color-brand-dark)]">
+              Become a mentor
+            </a>
           </div>
-          <div className="mt-6">
-            <FindHelpResults students={students} initialView={initialView} initialAreas={initialAreas} />
-          </div>
-          {students.length === 0 ? <EmptyState /> : null}
-        </div>
-      </section>
-
-      <section className="border-y border-[var(--color-border)] bg-[var(--color-blue-soft)]">
-        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">
-                Open requests
-              </p>
-              <h2 className="mt-3 text-section-heading font900 text-[var(--color-brand-dark)]">
-                Students looking for help right now.
-              </h2>
-            </div>
-            <Link
-              href="/requests"
-              className="text-sm font900 text-[var(--color-brand)] hover:text-[var(--color-brand-dark)]"
-            >
-              Browse all requests
-            </Link>
-          </div>
-          <div className="mt-8 grid gap-4 lg:grid-cols-2">
-            {openRequests.slice(0, 4).map((request) => (
-              <RequestCard key={request.id} request={request} />
+          <div className="mt-6 grid gap-5">
+            {mentorResults.map((mentor) => (
+              <MentorCard key={mentor.id} mentor={mentor} courseId={activeCourse?.id} />
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-white">
+      <section className="border-t border-[var(--color-border)] bg-white">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
-              <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">
-                Popular categories
-              </p>
-              <h2 className="mt-3 text-section-heading font900 text-[var(--color-brand-dark)]">
-                Start with a common task.
-              </h2>
+              <p className="text-sm font900 uppercase tracking-[0.18em] text-[var(--color-brand)]">Course pages</p>
+              <h2 className="mt-3 text-section-heading font900 text-[var(--color-brand-dark)]">Mentors and notes connect through courses.</h2>
             </div>
           </div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {popularCategories.map((category) => (
-              <ServiceCard key={category.slug} category={category} compact />
-            ))}
+          <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {courses.slice(0, 3).map((course) => <CourseCard key={course.id} course={course} />)}
           </div>
         </div>
       </section>
     </PageShell>
   );
-}
-
-function parseAreas(value?: string) {
-  return (value || "")
-    .split(",")
-    .map((item) => Number(item))
-    .filter((item) => Number.isInteger(item) && item >= 1 && item <= 20);
 }

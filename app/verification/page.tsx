@@ -5,7 +5,7 @@ import { TextInput } from "@/components/FormField";
 
 export const metadata = {
   title: "Student verification",
-  description: "How Etudo verifies student affiliation and supports trust in Paris.",
+  description: "How Etudo verifies student affiliation, course history, and academic marketplace trust.",
 };
 
 const steps = [
@@ -26,8 +26,7 @@ export default function VerificationPage() {
             A safer marketplace starts with student affiliation.
           </h1>
           <p className="mt-5 text-lg leading-8 text-[var(--color-text-secondary)]">
-            Etudo&apos;s verification process is designed to help students book and offer services
-            with greater confidence.
+            Etudo&apos;s verification process is designed to confirm student affiliation and support trust around mentoring and student notes.
           </p>
         </div>
         <div className="mt-10 grid gap-5 md:grid-cols-3">
@@ -74,8 +73,8 @@ export default function VerificationPage() {
             <h2 className="mt-5 text-2xl font900">What Etudo checks</h2>
             <div className="mt-5 grid gap-4 text-sm leading-6 text-white/74">
               <p>University affiliation helps keep the network focused on students.</p>
-              <p>Profile badges make verification status visible before a booking request.</p>
-              <p>Clear service details, reviews, and reporting tools support safer decisions.</p>
+              <p>Course completion checks help mentors show which classes they have actually taken.</p>
+              <p>Profile badges, reviews, and reporting tools support safer academic decisions.</p>
             </div>
             <div className="mt-8 rounded-lg border border-white/12 bg-white/6 p-4">
               <div className="flex items-center gap-3">

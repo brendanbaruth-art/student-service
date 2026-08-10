@@ -9,12 +9,12 @@ export default function AboutPage() {
   return (
     <InfoPage
       eyebrow="About"
-      title="Student-to-student help, built for Paris."
-      body="Etudo connects students who need everyday help with verified peers who want flexible paid work."
+      title="Course-specific academic support, built for Paris."
+      body="Etudo helps university students find verified mentors and study notes from students who already took the same course."
       items={[
-        "The marketplace focuses on practical services: moving, tutoring, errands, tech support, pet care, and assembly.",
-        "The product is designed for university communities, compact city living, and flexible schedules.",
-        "Etudo keeps trust, clear pricing, and simple booking details at the center of the experience.",
+        "Courses connect mentors, professors, universities, and notes in one academic marketplace.",
+        "Students compare mentors by course, professor, rating, price, format, and availability.",
+        "Etudo keeps verification, clear pricing, previews, and reviews at the center of the experience.",
       ]}
     />
   );
