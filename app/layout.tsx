@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "maplibre-gl/dist/maplibre-gl.css";
 import "./globals.css";
+import { LanguageProvider } from "@/components/i18n/LanguageProvider";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://etudo.com"),
@@ -38,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

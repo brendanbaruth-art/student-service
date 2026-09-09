@@ -5,6 +5,7 @@ import { Bell, BookOpen, Menu, MessageCircle, Search, UserRound, X } from "lucid
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "./Logo";
+import { LanguageSwitcher } from "./i18n/LanguageSwitcher";
 import { notifications } from "@/lib/data";
 
 const navItems = [
@@ -78,6 +79,8 @@ export function Header() {
           ))}
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
+          <LanguageSwitcher compact className="flex xl:hidden" />
+          <LanguageSwitcher className="hidden xl:flex" />
           <Link href="/search" className="grid size-9 place-items-center rounded-full text-[var(--color-text-secondary)] transition hover:bg-[var(--color-blue-soft)] hover:text-[var(--color-brand-dark)]" aria-label="Search">
             <Search size={18} aria-hidden />
           </Link>
@@ -157,6 +160,7 @@ export function Header() {
           className="border-t border-[var(--color-border)] bg-white/96 px-4 py-4 shadow-[0_18px_36px_rgba(16,42,67,0.1)] backdrop-blur-xl lg:hidden"
         >
           <nav className="mx-auto grid max-w-7xl gap-2" aria-label="Mobile navigation">
+            <LanguageSwitcher className="mb-2 flex w-fit" />
             <div className="grid grid-cols-3 gap-2">
               <Link href="/search" onClick={() => setOpen(false)} className="grid min-h-12 place-items-center rounded-xl bg-[var(--color-blue-soft)] text-sm font800 text-[var(--color-brand-dark)]">
                 <Search size={17} aria-hidden /> Search

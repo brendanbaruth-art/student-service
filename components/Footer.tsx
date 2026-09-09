@@ -42,7 +42,7 @@ export function Footer() {
           <div className="mt-6 flex flex-wrap gap-3 text-sm text-[var(--color-text-secondary)]">
             <span>Paris, France</span>
             <span aria-hidden>·</span>
-            <span>English / Français</span>
+            <span data-no-translate="true">English / Français / Čeština</span>
           </div>
         </div>
         <div className="grid gap-8 sm:grid-cols-3">
