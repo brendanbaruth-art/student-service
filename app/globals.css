@@ -104,6 +104,102 @@ button {
   letter-spacing: 0;
 }
 
+/* Localized copy can be materially longer than English. These rules only
+   tighten fixed-size presentation areas, leaving the English layout intact. */
+.etudo-book-cover-title,
+.etudo-book-page-title {
+  text-wrap: balance;
+}
+
+.etudo-book-cover-title,
+.etudo-book-page-copy,
+.etudo-skill-metric {
+  overflow-wrap: break-word;
+}
+
+.etudo-skill-metric {
+  min-width: 0;
+}
+
+.etudo-main-nav > a {
+  white-space: nowrap;
+}
+
+html[lang="cs"] .etudo-book-cover-title {
+  max-width: 42rem;
+  font-size: clamp(2rem, 4.8vw, 3.7rem);
+  line-height: 0.95;
+}
+
+html[lang="fr"] .etudo-book-cover-title {
+  max-width: 41rem;
+  font-size: clamp(2.05rem, 5.1vw, 4.15rem);
+  line-height: 0.95;
+}
+
+html[lang="cs"] .etudo-book-page-title {
+  font-size: clamp(1.4rem, 2.4vw, 2.05rem);
+  line-height: 1.06;
+}
+
+html[lang="fr"] .etudo-book-page-title {
+  font-size: clamp(1.45rem, 2.6vw, 2.2rem);
+  line-height: 1.06;
+}
+
+html[lang="cs"] .etudo-book-page-copy {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+html[lang="fr"] .etudo-book-page-copy {
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+html[lang="cs"] .etudo-book-actions {
+  gap: 0.5rem;
+}
+
+html[lang="cs"] .etudo-book-actions a,
+html[lang="cs"] .etudo-book-actions button {
+  padding-inline: 0.75rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+html[lang="fr"] .etudo-book-actions a,
+html[lang="fr"] .etudo-book-actions button {
+  padding-inline: 0.9rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+html[lang="cs"] .etudo-skill-metric,
+html[lang="fr"] .etudo-skill-metric {
+  padding: 0.55rem 0.4rem;
+  font-size: 0.7rem;
+  line-height: 1.18;
+}
+
+html[lang="cs"] .etudo-main-nav {
+  gap: 0;
+  font-size: 11px;
+}
+
+html[lang="cs"] .etudo-main-nav > a {
+  padding-inline: 0.45rem;
+}
+
+html[lang="fr"] .etudo-main-nav {
+  gap: 0;
+  font-size: 12px;
+}
+
+html[lang="fr"] .etudo-main-nav > a {
+  padding-inline: 0.6rem;
+}
+
 .surface-glass {
   border: 1px solid rgba(255, 255, 255, 0.55);
   background: rgba(255, 255, 255, 0.82);

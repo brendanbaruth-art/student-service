@@ -269,10 +269,10 @@ function SkillMomentCard({
         </div>
       </div>
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
-        <span className="rounded-xl bg-[var(--color-surface-soft)] p-3 font800 text-[var(--color-brand-dark)]">{moment.availability}</span>
-        <span className="rounded-xl bg-[var(--color-surface-soft)] p-3 font800 text-[var(--color-brand-dark)]">{moment.travel}</span>
-        <span className="rounded-xl bg-[var(--color-surface-soft)] p-3 font800 text-[var(--color-brand-dark)]">{moment.distance}</span>
-        <span className="rounded-xl bg-[var(--color-yellow-soft)] p-3 font900 text-[var(--color-brand-dark)]">{moment.price}</span>
+        <span className="etudo-skill-metric rounded-xl bg-[var(--color-surface-soft)] p-3 font800 text-[var(--color-brand-dark)]">{moment.availability}</span>
+        <span className="etudo-skill-metric rounded-xl bg-[var(--color-surface-soft)] p-3 font800 text-[var(--color-brand-dark)]">{moment.travel}</span>
+        <span className="etudo-skill-metric rounded-xl bg-[var(--color-surface-soft)] p-3 font800 text-[var(--color-brand-dark)]">{moment.distance}</span>
+        <span className="etudo-skill-metric rounded-xl bg-[var(--color-yellow-soft)] p-3 font900 text-[var(--color-brand-dark)]">{moment.price}</span>
       </div>
     </motion.article>
   );
@@ -435,14 +435,14 @@ function BookEarningScene() {
                 <Sparkles size={20} aria-hidden />
               </span>
               <p className="relative mt-20 text-xl font900 text-white/76 max-sm:mt-16">Etudo</p>
-              <h2 className="relative mt-4 max-w-xl text-[clamp(2.2rem,6vw,5rem)] font900 leading-[0.96]">
+              <h2 className="etudo-book-cover-title relative mt-4 max-w-xl text-[clamp(2.2rem,6vw,5rem)] font900 leading-[0.96]">
                 Your course notes have a next chapter.
               </h2>
               <div className="absolute bottom-8 left-8 size-3 rounded-full bg-[var(--color-accent)] sm:left-12" />
             </motion.div>
             <motion.div
               style={{ opacity: actionsOpacity, pointerEvents: actionsPointerEvents }}
-              className="absolute inset-x-5 bottom-5 z-[var(--z-content)] flex flex-col gap-3 sm:left-auto sm:right-8 sm:w-[calc(50%-4rem)] sm:flex-row"
+              className="etudo-book-actions absolute inset-x-5 bottom-5 z-[var(--z-content)] flex flex-col gap-3 sm:left-auto sm:right-8 sm:w-[calc(50%-4rem)] sm:flex-row"
             >
               <Button href="/offer" className="bg-[var(--color-accent)] text-[var(--color-brand-dark)] hover:bg-[var(--color-yellow-soft)]">
                 Become a Mentor
@@ -474,10 +474,10 @@ function BookPage({
       <div className="pointer-events-none absolute inset-0 opacity-[0.08] [background-image:radial-gradient(circle_at_1px_1px,var(--color-brand-dark)_1px,transparent_0)] [background-size:16px_16px]" aria-hidden="true" />
       <div className="relative max-w-sm">
         <p className="text-xs font900 uppercase tracking-[0.16em] text-[var(--color-brand)]">{eyebrow}</p>
-        <h3 className="mt-4 text-[clamp(1.55rem,3vw,2.65rem)] font900 leading-tight text-[var(--color-brand-dark)]">
+        <h3 className="etudo-book-page-title mt-4 text-[clamp(1.55rem,3vw,2.65rem)] font900 leading-tight text-[var(--color-brand-dark)]">
           {title}
         </h3>
-        <p className="mt-5 text-base font800 leading-7 text-[var(--color-brand-dark)] sm:text-lg">
+        <p className="etudo-book-page-copy mt-5 text-base font800 leading-7 text-[var(--color-brand-dark)] sm:text-lg">
           {children}
         </p>
       </div>

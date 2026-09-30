@@ -65,12 +65,12 @@ export function Header() {
     <header className="sticky top-0 z-[var(--z-navigation)] border-b border-[var(--color-border)] bg-white/82 shadow-[0_1px_0_rgba(16,42,67,0.05)] backdrop-blur-xl transition">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Logo />
-        <nav className="hidden items-center gap-1 text-[13px] font-semibold text-[var(--color-text-secondary)] lg:flex" aria-label="Main navigation">
+        <nav className="etudo-main-nav hidden items-center gap-1 text-[13px] font-semibold text-[var(--color-text-secondary)] lg:flex" aria-label="Main navigation">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-full px-3 py-2 transition hover:bg-[var(--color-blue-soft)] hover:text-[var(--color-brand-dark)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-brand)] ${
+              className={`whitespace-nowrap rounded-full px-3 py-2 transition hover:bg-[var(--color-blue-soft)] hover:text-[var(--color-brand-dark)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-brand)] ${
                 pathname === item.href.split("?")[0] ? "bg-[var(--color-blue-soft)] text-[var(--color-brand-dark)]" : ""
               }`}
             >
