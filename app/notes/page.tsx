@@ -69,7 +69,7 @@ export default async function NotesMarketplacePage({ searchParams }: NotesPagePr
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <h2 className="text-2xl font900 text-[var(--color-brand-dark)]">
-                {notes.length} {activeSubject ? `${activeSubject} ` : "academic "}note packs
+                {activeSubject ? `${notes.length} ${activeSubject} note packs` : `${notes.length} academic note packs`}
               </h2>
               <p className="mt-1 text-sm font700 text-[var(--color-text-secondary)]">Organized by course, professor, university, and seller quality</p>
             </div>

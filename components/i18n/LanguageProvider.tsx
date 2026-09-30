@@ -7,7 +7,7 @@ type Translation = { fr: string; cs: string };
 
 const translations: Record<string, Translation> = {
   "Student-to-student academics in Paris.": { fr: "L'accompagnement académique entre étudiants à Paris.", cs: "Akademická pomoc mezi studenty v Paříži." },
-  "Learn from students who already took your course.": { fr: "Apprenez avec des étudiants qui ont déjà suivi votre cours.", cs: "Učte se od studentů, kteří už váš kurz absolvovali." },
+  "Learn from students who already took your course.": { fr: "Apprenez avec des étudiants qui ont déjà suivi votre cours.", cs: "Učte se od těch, co váš kurz absolvovali." },
   "Find verified student mentors and course notes from students who know your university, professor, and class.": { fr: "Trouvez des mentors étudiants vérifiés et des notes de cours créées par des étudiants qui connaissent votre université, votre professeur et votre cours.", cs: "Najděte ověřené studentské mentory a studijní materiály od studentů, kteří znají vaši univerzitu, vyučujícího i konkrétní kurz." },
   "Find a Mentor": { fr: "Trouver un mentor", cs: "Najít mentora" },
   "Browse Notes": { fr: "Parcourir les notes", cs: "Procházet poznámky" },
@@ -33,7 +33,7 @@ const translations: Record<string, Translation> = {
   "Choose your availability.": { fr: "Choisissez vos disponibilités.", cs: "Vyberte si svou dostupnost." },
   "Sell notes from courses you completed.": { fr: "Vendez vos notes des cours que vous avez validés.", cs: "Prodávejte poznámky z kurzů, které jste absolvovali." },
   "Turn course experience into useful academic support for another student.": { fr: "Transformez votre expérience du cours en aide académique utile pour un autre étudiant.", cs: "Proměňte zkušenosti z kurzu v užitečnou akademickou podporu pro dalšího studenta." },
-  "Your course notes have a next chapter.": { fr: "Vos notes de cours peuvent avoir une seconde vie.", cs: "Vaše poznámky z kurzu mohou pokračovat dál." },
+  "Your course notes have a next chapter.": { fr: "Vos notes de cours peuvent avoir une seconde vie.", cs: "Vaše poznámky mohou pokračovat dál." },
   "Become a Mentor": { fr: "Devenir mentor", cs: "Staňte se mentorem" },
   "Sell Notes": { fr: "Vendre des notes", cs: "Prodat poznámky" },
   "Etudo Pulse": { fr: "Etudo Pulse", cs: "Etudo Pulse" },
@@ -61,6 +61,71 @@ const translations: Record<string, Translation> = {
   "Ratings and reviews": { fr: "Notes et avis", cs: "Hodnocení a recenze" },
   "Reporting and support": { fr: "Signalement et assistance", cs: "Nahlášení a podpora" },
   "Course-specific academic support, built for student life in Paris.": { fr: "Une aide académique adaptée aux cours, pensée pour la vie étudiante à Paris.", cs: "Akademická pomoc ke konkrétním kurzům, vytvořená pro studentský život v Paříži." },
+
+  // Mentor signup page
+  "Earn by helping students pass courses you already know.": { fr: "Gagnez de l’argent en aidant d’autres étudiants à réussir des cours que vous connaissez déjà.", cs: "Vydělávejte tím, že pomůžete studentům zvládnout kurzy, které už znáte." },
+  "Add the courses you completed, show the professor context, set your price, and mentor around your studies.": { fr: "Ajoutez les cours que vous avez validés, indiquez le professeur, fixez votre tarif et organisez le mentorat autour de vos études.", cs: "Přidejte absolvované kurzy, uveďte vyučujícího, nastavte si cenu a přizpůsobte mentoring svému studiu." },
+  "Mentor courses you have already completed": { fr: "Accompagnez des étudiants dans les cours que vous avez déjà validés", cs: "Pomáhejte s kurzy, které už jste absolvovali" },
+  "Set your own hourly rate": { fr: "Fixez votre propre tarif horaire", cs: "Nastavte si vlastní hodinovou sazbu" },
+  "Offer online or in-person sessions": { fr: "Proposez des séances en ligne ou en présentiel", cs: "Nabízejte online i osobní lekce" },
+  "Build academic reputation": { fr: "Développez votre réputation académique", cs: "Budujte si akademickou reputaci" },
+  "Verify course history privately": { fr: "Faites vérifier vos cours de manière confidentielle", cs: "Ověřte absolvované kurzy soukromě" },
+  "Create your mentor profile": { fr: "Créez votre profil de mentor", cs: "Vytvořte si profil mentora" },
+  "Start with one course. You can add more courses and note listings from your dashboard later.": { fr: "Commencez avec un cours. Vous pourrez ajouter d’autres cours et des notes depuis votre tableau de bord plus tard.", cs: "Začněte jedním kurzem. Další kurzy a nabídky poznámek můžete přidat později ze svého přehledu." },
+  "Profile headline": { fr: "Titre du profil", cs: "Nadpis profilu" },
+  "Financial Accounting mentor for ESCP students": { fr: "Mentor en Financial Accounting pour les étudiants de l’ESCP", cs: "Mentor Financial Accounting pro studenty ESCP" },
+  "Course completed": { fr: "Cours validé", cs: "Absolvovaný kurz" },
+  "Subject": { fr: "Matière", cs: "Předmět" },
+  "Grade or result": { fr: "Note ou résultat", cs: "Známka nebo výsledek" },
+  "17/20, A, distinction": { fr: "17/20, A, mention", cs: "17/20, A, vyznamenání" },
+  "How you can help": { fr: "Comment vous pouvez aider", cs: "Jak můžete pomoci" },
+  "Explain the exam, assignments, professor expectations, and topics you can mentor.": { fr: "Expliquez l’examen, les devoirs, les attentes du professeur et les sujets sur lesquels vous pouvez aider.", cs: "Popište zkoušku, úkoly, očekávání vyučujícího a témata, se kterými můžete pomoci." },
+  "Hourly rate": { fr: "Tarif horaire", cs: "Hodinová sazba" },
+  "Available days": { fr: "Jours disponibles", cs: "Dostupné dny" },
+  "Monday, Wednesday, Saturday": { fr: "Lundi, mercredi, samedi", cs: "Pondělí, středa, sobota" },
+  "Available times": { fr: "Heures disponibles", cs: "Dostupné časy" },
+  "Session format": { fr: "Format de la séance", cs: "Forma lekce" },
+  "Online and in person": { fr: "En ligne et en présentiel", cs: "Online i osobně" },
+  "Online only": { fr: "En ligne uniquement", cs: "Pouze online" },
+  "In person near campus": { fr: "En présentiel près du campus", cs: "Osobně poblíž kampusu" },
+  "Languages": { fr: "Langues", cs: "Jazyky" },
+  "French, English": { fr: "Français, anglais", cs: "Francouzština, angličtina" },
+  "Course verification": { fr: "Vérification du cours", cs: "Ověření kurzu" },
+  "Etudo may review student status, transcript details, or proof of course completion before displaying course-verified badges.": { fr: "Etudo peut vérifier le statut étudiant, des éléments du relevé de notes ou une preuve de validation du cours avant d’afficher le badge de cours vérifié.", cs: "Etudo může před zobrazením odznaku ověřeného kurzu zkontrolovat status studenta, údaje z výpisu známek nebo doklad o absolvování kurzu." },
+  "Save draft": { fr: "Enregistrer le brouillon", cs: "Uložit koncept" },
+  "Preview profile": { fr: "Prévisualiser le profil", cs: "Náhled profilu" },
+  "Your mentor draft is ready to continue.": { fr: "Votre brouillon de profil mentor est prêt à être repris.", cs: "Koncept profilu mentora je připraven k dalším úpravám." },
+  "Your mentor profile preview is ready.": { fr: "L’aperçu de votre profil mentor est prêt.", cs: "Náhled profilu mentora je připraven." },
+
+  // Notes marketplace page
+  "Study materials created by students who already took your course.": { fr: "Des supports d’étude créés par des étudiants qui ont déjà suivi votre cours.", cs: "Studijní materiály od studentů, kteří už váš kurz absolvovali." },
+  "Search by university, course, professor, subject, title, or seller. Preview selected pages before buying.": { fr: "Recherchez par université, cours, professeur, matière, titre ou vendeur. Prévisualisez certaines pages avant l’achat.", cs: "Hledejte podle univerzity, kurzu, vyučujícího, předmětu, názvu nebo prodejce. Před nákupem si prohlédněte vybrané stránky." },
+  "All Notes": { fr: "Toutes les notes", cs: "Všechny poznámky" },
+  "Filters": { fr: "Filtres", cs: "Filtry" },
+  "Reset": { fr: "Réinitialiser", cs: "Obnovit" },
+  "Course, professor, seller": { fr: "Cours, professeur, vendeur", cs: "Kurz, vyučující, prodejce" },
+  "Any subject": { fr: "Toutes les matières", cs: "Jakýkoli předmět" },
+  "Price": { fr: "Prix", cs: "Cena" },
+  "Any price": { fr: "Tous les prix", cs: "Jakákoli cena" },
+  "Under €8": { fr: "Moins de 8 €", cs: "Do 8 €" },
+  "Rating": { fr: "Évaluation", cs: "Hodnocení" },
+  "Any rating": { fr: "Toutes les évaluations", cs: "Jakékoli hodnocení" },
+  "Academic year": { fr: "Année universitaire", cs: "Akademický rok" },
+  "Any year": { fr: "Toutes les années", cs: "Jakýkoli rok" },
+  "File type": { fr: "Type de fichier", cs: "Typ souboru" },
+  "Any file": { fr: "Tous les fichiers", cs: "Jakýkoli soubor" },
+  "Slides": { fr: "Diapositives", cs: "Prezentace" },
+  "Sort": { fr: "Trier", cs: "Řazení" },
+  "Recommended": { fr: "Recommandé", cs: "Doporučené" },
+  "Highest rated": { fr: "Mieux notés", cs: "Nejlépe hodnocené" },
+  "Most purchased": { fr: "Plus achetés", cs: "Nejprodávanější" },
+  "Newest": { fr: "Plus récents", cs: "Nejnovější" },
+  "Price low to high": { fr: "Prix croissant", cs: "Cena od nejnižší" },
+  "Price high to low": { fr: "Prix décroissant", cs: "Cena od nejvyšší" },
+  "Apply filters": { fr: "Appliquer les filtres", cs: "Použít filtry" },
+  "Organized by course, professor, university, and seller quality": { fr: "Classés par cours, professeur, université et qualité du vendeur", cs: "Uspořádáno podle kurzu, vyučujícího, univerzity a hodnocení prodejce" },
+  "academic note packs": { fr: "packs de notes de cours", cs: "balíčky studijních poznámek" },
+  "note packs": { fr: "packs de notes", cs: "balíčky poznámek" },
 
   "Search": { fr: "Rechercher", cs: "Hledat" },
   "Messages": { fr: "Messages", cs: "Zprávy" },
@@ -135,6 +200,10 @@ function translateCore(text: string, language: EtudoLanguage) {
   if (meters) return language === "fr" ? `à ${meters[1]} m` : `${meters[1]} m daleko`;
   const professor = text.match(/^Professor (.+)$/);
   if (professor) return language === "fr" ? `Professeur ${professor[1]}` : `Profesor ${professor[1]}`;
+  const academicPacks = text.match(/^(\d+) academic note packs$/);
+  if (academicPacks) return language === "fr" ? `${academicPacks[1]} packs de notes de cours` : `${academicPacks[1]} balíčků studijních poznámek`;
+  const subjectPacks = text.match(/^(\d+) (.+) note packs$/);
+  if (subjectPacks) return language === "fr" ? `${subjectPacks[1]} packs de notes · ${subjectPacks[2]}` : `${subjectPacks[1]} balíčků poznámek · ${subjectPacks[2]}`;
 
   return text;
 }
@@ -156,8 +225,7 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<EtudoLanguage>("en");
-  const originals = useRef(new WeakMap<Text, string>());
-  const observerRef = useRef<MutationObserver | null>(null);
+  const originals = useRef(new WeakMap<Text, string>());\n  const attributeOriginals = useRef(new WeakMap<Element, Map<string, string>>());\n  const observerRef = useRef<MutationObserver | null>(null);
 
   const setLanguage = useCallback((nextLanguage: EtudoLanguage) => {
     setLanguageState(nextLanguage);
@@ -200,13 +268,46 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       if (currentText !== translated) node.nodeValue = translated;
     };
 
+    const translateAttribute = (element: Element, attribute: "placeholder") => {
+      const currentValue = element.getAttribute(attribute);
+      if (!currentValue) return;
+
+      let values = attributeOriginals.current.get(element);
+      if (!values) {
+        values = new Map<string, string>();
+        attributeOriginals.current.set(element, values);
+      }
+
+      const stored = values.get(attribute);
+      let original = stored ?? currentValue;
+      if (stored) {
+        const knownVariants = [stored, translateCore(stored, "fr"), translateCore(stored, "cs")];
+        if (!knownVariants.includes(currentValue)) original = currentValue;
+      }
+
+      values.set(attribute, original);
+      const translated = translateCore(original, language);
+      if (currentValue !== translated) element.setAttribute(attribute, translated);
+    };
+
+    const translateElement = (element: Element) => {
+      if (element.closest("[data-no-translate='true']")) return;
+      if (element.hasAttribute("placeholder")) translateAttribute(element, "placeholder");
+    };
+
     const translateTree = (root: Node) => {
       if (root.nodeType === Node.TEXT_NODE) translateNode(root as Text);
+      if (root instanceof Element) translateElement(root);
+
       const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
       let current = walker.nextNode();
       while (current) {
         translateNode(current as Text);
         current = walker.nextNode();
+      }
+
+      if (root instanceof Element) {
+        root.querySelectorAll("[placeholder]").forEach((element) => translateElement(element));
       }
     };
 
