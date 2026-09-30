@@ -225,7 +225,9 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<EtudoLanguage>("en");
-  const originals = useRef(new WeakMap<Text, string>());\n  const attributeOriginals = useRef(new WeakMap<Element, Map<string, string>>());\n  const observerRef = useRef<MutationObserver | null>(null);
+  const originals = useRef(new WeakMap<Text, string>());
+  const attributeOriginals = useRef(new WeakMap<Element, Map<string, string>>());
+  const observerRef = useRef<MutationObserver | null>(null);
 
   const setLanguage = useCallback((nextLanguage: EtudoLanguage) => {
     setLanguageState(nextLanguage);
